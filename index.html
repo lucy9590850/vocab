@@ -1,0 +1,1035 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>單字練習站</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Huninn&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout: playful app shell — sunny header with points, colored grade tabs, lesson chips, then 學習/檢測/單字集; one column ~720px. Each grade tints the accent. */
+:root{
+  --bg:#fff7ec; --surface:#ffffff; --sunk:#fdeedd; --ink:#3b2a1e; --muted:#8a6d58; --line:#f1dcc4;
+  --g7:#25a566; --g7-soft:#e2f6ea; --g8:#f0712c; --g8-soft:#ffe9da; --g9:#6f58f0; --g9-soft:#ece8ff; --g12:#e2477f; --g12-soft:#fde4ee;
+  --accent:var(--g8); --accent-soft:var(--g8-soft); --on-accent:#ffffff;
+  --sun:#ffc83a; --gold:#a8650a; --gold-soft:#fff0c4; --ok:#18905c; --ok-soft:#dcf5e8; --bad:#d9383f; --bad-soft:#ffe3e1;
+  --shadow:rgba(150,90,40,.16);
+  --display:"Baloo 2","Huninn","Noto Sans TC",system-ui,sans-serif;
+  --round:"Huninn","Noto Sans TC",system-ui,sans-serif;
+  --body:"Noto Sans TC",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1f1813; --surface:#2b211a; --sunk:#251c16; --ink:#f8ece0; --muted:#c4a993; --line:#46362a;
+  --g7:#4fd08e; --g7-soft:#1d3a2b; --g8:#ff9a5c; --g8-soft:#43281a; --g9:#a594ff; --g9-soft:#2d2750; --g12:#ff7fab; --g12-soft:#45212f;
+  --on-accent:#23160e; --sun:#ffd25e; --gold:#ffc65a; --gold-soft:#3d2f15; --ok:#4fd08e; --ok-soft:#173a29; --bad:#ff7d78; --bad-soft:#44201e;
+  --shadow:rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1f1813; --surface:#2b211a; --sunk:#251c16; --ink:#f8ece0; --muted:#c4a993; --line:#46362a;
+  --g7:#4fd08e; --g7-soft:#1d3a2b; --g8:#ff9a5c; --g8-soft:#43281a; --g9:#a594ff; --g9-soft:#2d2750; --g12:#ff7fab; --g12-soft:#45212f;
+  --on-accent:#23160e; --sun:#ffd25e; --gold:#ffc65a; --gold-soft:#3d2f15; --ok:#4fd08e; --ok-soft:#173a29; --bad:#ff7d78; --bad-soft:#44201e;
+  --shadow:rgba(0,0,0,.35); color-scheme:dark}
+body[data-grade="7"]{--accent:var(--g7);--accent-soft:var(--g7-soft)}
+body[data-grade="8"]{--accent:var(--g8);--accent-soft:var(--g8-soft)}
+body[data-grade="9"]{--accent:var(--g9);--accent-soft:var(--g9-soft)}
+body[data-grade="1200"]{--accent:var(--g12);--accent-soft:var(--g12-soft)}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;
+  background-image:radial-gradient(circle at 1px 1px,var(--line) 1.2px,transparent 0);background-size:22px 22px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 64px}
+.app{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1,h2,h3{margin:0;text-wrap:balance;font-family:var(--round);font-weight:400}
+h1{font-family:var(--display);font-size:1.9rem;font-weight:800;line-height:1.1}
+h2{font-size:1.3rem}
+h3{font-size:1.05rem}
+.muted{color:var(--muted)}
+.small{font-size:.875rem}
+
+/* header */
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--sun);color:#3b2a1e;
+  border-radius:22px;padding:14px 18px;box-shadow:0 5px 0 rgba(168,101,10,.35);position:relative;overflow:hidden}
+header::after{content:"";position:absolute;right:-30px;top:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.28);pointer-events:none}
+.brand{display:flex;align-items:center;gap:12px;position:relative}
+.logo{width:46px;height:46px;flex:none;border-radius:14px;background:#fff;display:grid;place-items:center;font-family:"Baloo 2",system-ui,sans-serif;font-weight:800;font-size:1.25rem;color:#f0712c;transform:rotate(-6deg);box-shadow:0 3px 0 rgba(168,101,10,.35)}
+.brand-text{display:flex;flex-direction:column}
+.brand-text span{font-size:.85rem;opacity:.75}
+.points{position:relative;display:inline-flex;align-items:center;gap:6px;background:#fff;color:#a8650a;font-family:"Baloo 2",var(--body);font-weight:800;font-size:1.05rem;
+  padding:4px 14px;border-radius:999px;font-variant-numeric:tabular-nums;box-shadow:0 3px 0 rgba(168,101,10,.3)}
+.points.bump{animation:bump .5s}
+@keyframes bump{30%{transform:scale(1.25) rotate(-4deg)}60%{transform:scale(.95)}}
+
+/* grade tabs */
+.grades{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.grade{font:inherit;cursor:pointer;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:16px;padding:8px 6px 9px;
+  display:flex;flex-direction:column;align-items:center;gap:0;line-height:1.25;box-shadow:0 3px 0 var(--line);transition:transform .12s}
+.grade b{font-family:var(--round);font-weight:400;font-size:1.05rem}
+.grade small{color:var(--muted);font-size:.72rem}
+.grade:hover{transform:translateY(-2px)}
+.grade[data-g="7"]{--c:var(--g7)}.grade[data-g="8"]{--c:var(--g8)}.grade[data-g="9"]{--c:var(--g9)}.grade[data-g="1200"]{--c:var(--g12)}
+.grade[aria-selected="true"]{background:var(--c);border-color:var(--c);color:var(--on-accent);box-shadow:0 4px 0 color-mix(in srgb,var(--c) 60%,#000)}
+.grade[aria-selected="true"] small{color:var(--on-accent);opacity:.85}
+@media (max-width:440px){.grade b{font-size:.85rem;white-space:nowrap}.grade small{font-size:.64rem}.grades{gap:6px}.grade{padding:8px 2px 9px}}
+
+/* lesson chips */
+.lessons{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:thin}
+.lessons:empty{display:none}
+.lesson{font:inherit;flex:none;display:flex;align-items:baseline;gap:6px;padding:6px 14px;border-radius:999px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.lesson span{font-weight:700}
+.lesson small{color:var(--muted);font-size:.75rem;font-variant-numeric:tabular-nums}
+.lesson:hover{border-color:var(--accent)}
+.lesson[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.lesson[aria-pressed="true"] small{color:var(--accent)}
+
+/* section tabs */
+nav{display:flex;gap:4px;background:var(--sunk);padding:5px;border-radius:16px}
+nav button{flex:1;font:inherit;font-family:var(--round);font-size:1.02rem;border:0;background:none;color:var(--muted);padding:8px;border-radius:12px;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--surface);color:var(--accent);box-shadow:0 2px 0 var(--line)}
+
+.panel{background:var(--surface);border:2px solid var(--line);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:16px;box-shadow:0 6px 18px -10px var(--shadow)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.spread{justify-content:space-between}
+
+button.btn,label.btn,a.btn{font:inherit;font-weight:700;padding:9px 18px;border-radius:14px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;box-shadow:0 3px 0 var(--line);transition:transform .08s,box-shadow .08s}
+.btn:hover{border-color:var(--accent)}
+.btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 0 0 var(--line)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);box-shadow:0 3px 0 color-mix(in srgb,var(--accent) 60%,#000)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.hint{background:var(--gold-soft);border-color:var(--sun);color:var(--gold);box-shadow:0 3px 0 var(--sun)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,label.btn:focus-within,a.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.icon-btn{font:inherit;width:40px;height:40px;flex:none;border-radius:50%;border:2px solid transparent;background:var(--accent-soft);color:var(--accent);cursor:pointer;display:inline-grid;place-items:center;transition:transform .12s}
+.icon-btn:hover{border-color:var(--accent);transform:scale(1.08)}
+.icon-btn:active{transform:scale(.92)}
+.icon-btn svg{width:19px;height:19px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--sunk);border:2px solid var(--line);border-radius:12px;padding:8px 12px;min-width:0}
+textarea{width:100%;min-height:150px;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:.9rem;line-height:1.5}
+
+/* empty grade */
+.empty{align-items:center;text-align:center;padding:32px 20px}
+.empty .badge{width:84px;height:84px;border-radius:26px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-family:"Baloo 2",var(--round);font-weight:800;font-size:1.9rem;transform:rotate(-5deg)}
+.empty p{max-width:44ch;margin:0}
+.steps{display:flex;flex-direction:column;gap:6px;text-align:left;background:var(--sunk);border-radius:14px;padding:12px 16px;margin:0;max-width:46ch}
+
+/* learn */
+.words{display:flex;flex-direction:column}
+.word-row{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;padding:12px 0;border-top:2px dashed var(--line)}
+.word-row:first-child{border-top:0}
+.word-row .icon-btn{grid-row:span 2;margin-top:2px}
+.word-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;min-width:0}
+.word-en{font-family:"Baloo 2",var(--body);font-size:1.45rem;font-weight:700;line-height:1.3;word-break:break-word}
+.word-zh{color:var(--muted)}
+details.ex{min-width:0}
+details.ex summary{cursor:pointer;color:var(--accent);font-size:.9rem;font-weight:700;width:max-content}
+.ex-body{display:flex;gap:10px;align-items:flex-start;margin-top:8px;background:var(--sunk);border-radius:14px;padding:10px 12px}
+.ex-body p{margin:0;min-width:0}
+.ex-body mark{background:var(--sun);color:#3b2a1e;padding:0 4px;border-radius:6px}
+.ex-body .icon-btn{width:34px;height:34px}
+.ex-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ex-text .tr{color:var(--muted);font-size:.9rem}
+
+/* quiz setup */
+.types{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.type{font:inherit;text-align:left;color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;box-shadow:0 3px 0 var(--line);transition:transform .12s}
+.type:hover:not(:disabled){transform:translateY(-2px)}
+.type[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 3px 0 var(--accent)}
+.type:disabled{opacity:.45;cursor:not-allowed}
+.type-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.type-name{font-family:var(--round);font-size:1.08rem}
+.pts{font-size:.8rem;font-weight:700;color:var(--gold);background:var(--gold-soft);padding:2px 9px;border-radius:999px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.dots{display:flex;gap:3px}
+.dots i{width:14px;height:6px;border-radius:3px;background:var(--line)}
+.dots i.on{background:var(--accent)}
+.type .small{color:var(--muted)}
+
+/* quiz run */
+.q-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.chip{font-size:.8rem;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.bar{height:12px;border-radius:6px;background:var(--sunk);overflow:hidden}
+.bar span{display:block;height:100%;background:var(--accent);border-radius:6px;transition:width .4s cubic-bezier(.3,1.5,.6,1);
+  background-image:linear-gradient(90deg,rgba(255,255,255,.35) 0 50%,transparent 50%);background-size:16px 100%}
+.prompt{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:10px 0}
+.prompt .big{font-family:"Baloo 2",var(--body);font-size:clamp(2rem,8vw,2.8rem);font-weight:800;line-height:1.1;word-break:break-word;color:var(--accent)}
+.prompt .zh{font-family:var(--round);font-size:1.7rem}
+.listen-big{width:82px;height:82px;box-shadow:0 4px 0 color-mix(in srgb,var(--accent) 35%,transparent)}
+.listen-big svg{width:34px;height:34px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{font:inherit;font-family:"Baloo 2",var(--body);font-size:1.2rem;font-weight:700;padding:12px;border-radius:16px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;word-break:break-word;box-shadow:0 3px 0 var(--line)}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft);box-shadow:0 3px 0 var(--ok);animation:pop .4s}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft);box-shadow:0 3px 0 var(--bad);animation:shake .35s}
+.opt:disabled{cursor:default}
+.spell{display:flex;gap:10px}
+.spell input{flex:1;font-size:1.25rem;letter-spacing:.05em;text-align:center}
+.slots{font-family:ui-monospace,Menlo,monospace;letter-spacing:.3em;color:var(--muted);font-size:1.1rem}
+.tray{min-height:58px;border:2px dashed var(--line);border-radius:16px;padding:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.tray.bank{border-style:solid;background:var(--sunk)}
+.tok{font:inherit;font-weight:500;padding:5px 12px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;box-shadow:0 2px 0 var(--line)}
+.tok:hover:not(:disabled){border-color:var(--accent)}
+.tr-prompt{color:var(--muted);font-size:.9rem;max-width:46ch}
+.feedback{border-radius:16px;padding:12px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;animation:pop .35s}
+.feedback.ok{background:var(--ok-soft);color:var(--ok)}
+.feedback.no{background:var(--bad-soft);color:var(--bad)}
+.feedback strong{font-family:var(--round);font-weight:400;font-size:1.1rem}
+.feedback .ans{color:var(--ink);font-weight:500}
+.mic.listening{animation:micPulse 1s ease-in-out infinite}
+@keyframes micPulse{50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--accent) 30%,transparent)}}
+.status{text-align:center;color:var(--muted);min-height:1.6em}
+@keyframes pop{0%{transform:scale(.92)}60%{transform:scale(1.04)}100%{transform:scale(1)}}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+/* results */
+.score-big{font-family:"Baloo 2",var(--body);font-size:3.4rem;font-weight:800;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stat{background:var(--sunk);border-radius:14px;padding:10px 12px;font-variant-numeric:tabular-nums}
+.stat b{display:block;font-size:1.25rem}
+.review{display:flex;flex-direction:column;gap:6px}
+.review-item{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.review-panel{border-color:var(--sun);background:linear-gradient(var(--gold-soft),var(--surface) 80px)}
+.send{border-top:2px dashed var(--line);padding-top:16px;display:flex;flex-direction:column;gap:12px}
+.send textarea{min-height:170px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:20}
+
+/* sets */
+.set-item{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 0;border-top:2px dashed var(--line)}
+.set-item:first-of-type{border-top:0}
+.set-item .current{font-size:.8rem;color:var(--ok);font-weight:700}
+.format{background:var(--sunk);border-radius:12px;padding:10px 12px;font-family:ui-monospace,Menlo,monospace;font-size:.85rem;overflow-x:auto;white-space:pre;margin:0}
+label.field{display:flex;flex-direction:column;gap:6px;font-weight:700}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:14px;font-size:.9rem;max-width:calc(100% - 32px);z-index:30}
+
+@media (max-width:440px){.options{grid-template-columns:1fr}.panel{padding:16px}h1{font-size:1.6rem}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* header: me chip */
+.me{position:relative;display:flex;align-items:center;gap:10px}
+.me:empty{display:none}
+.me-btn{font:inherit;display:flex;align-items:center;gap:10px;background:#fff;border:0;border-radius:999px;padding:4px 14px 4px 4px;cursor:pointer;color:#3b2a1e;box-shadow:0 3px 0 rgba(168,101,10,.3);text-align:left}
+.me-btn .av{width:42px;height:42px}
+.me-info{display:flex;flex-direction:column;line-height:1.25}
+.me-info b{font-weight:700;font-size:.92rem}
+.me-info span{font-size:.8rem;color:#8a5a1a;font-variant-numeric:tabular-nums;display:flex;gap:10px}
+.me-btn.bump{animation:bump .5s}
+.av{display:block;border-radius:50%;flex:none}
+.av svg{display:block;width:100%;height:100%}
+
+/* login */
+.login{gap:18px}
+.login-hero{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.login-hero .av{width:120px;height:120px;box-shadow:0 5px 0 var(--line)}
+.pick-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.pick{font:inherit;cursor:pointer;background:var(--surface);border:3px solid var(--line);border-radius:50%;padding:3px;width:72px;height:72px}
+.pick .av{width:100%;height:100%}
+.pick[aria-pressed="true"]{border-color:var(--accent);transform:scale(1.08)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr 2fr;gap:10px}
+.form-grid>*{min-width:0}.form-grid input{width:100%}
+[hidden]{display:none!important}
+@media (max-width:480px){.form-grid{grid-template-columns:1fr 1fr}.form-grid .wide{grid-column:span 2}}
+.today{text-align:center;color:var(--muted);font-variant-numeric:tabular-nums}
+.who-list{display:flex;flex-wrap:wrap;gap:8px}
+.who{font:inherit;cursor:pointer;display:flex;align-items:center;gap:8px;padding:4px 14px 4px 4px;border-radius:999px;border:2px solid var(--line);background:var(--surface);color:var(--ink)}
+.who .av{width:34px;height:34px}
+.who:hover{border-color:var(--accent)}
+.err{color:var(--bad);font-weight:700;min-height:1.4em;margin:0}
+
+/* style tab */
+.profile{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.profile .av{width:132px;height:132px;box-shadow:0 5px 0 var(--line)}
+@media (max-width:440px){.profile{grid-template-columns:1fr;justify-items:center;text-align:center}}
+.p-name{font-family:var(--round);font-size:1.45rem}
+.p-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+@media (max-width:440px){.p-stats{justify-content:center}}
+.pill{display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:.85rem;padding:3px 11px;border-radius:999px;background:var(--sunk);font-variant-numeric:tabular-nums}
+.pill.gold{background:var(--gold-soft);color:var(--gold)}
+.pill svg{width:16px;height:16px}
+.slots-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.slot-tab{font:inherit;flex:none;padding:6px 14px;border-radius:999px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font-weight:700}
+.slot-tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.item{font:inherit;color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:10px 8px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;box-shadow:0 3px 0 var(--line);position:relative;text-align:center}
+.item .av{width:76px;height:76px}
+.item .nm{font-weight:700;font-size:.92rem;line-height:1.25}
+.item .st{font-size:.76rem;color:var(--muted);font-weight:700}
+.item.wearing{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 3px 0 var(--accent)}
+.item.wearing .st{color:var(--accent)}
+.item.buy .st{color:var(--gold)}
+.item.locked{cursor:default}
+.item.locked .av{filter:grayscale(1) brightness(.85);opacity:.55}
+.item.confirm{border-color:var(--sun);background:var(--gold-soft)}
+.rar{position:absolute;top:6px;left:6px;font-family:"Baloo 2",var(--body);font-weight:800;font-size:.66rem;line-height:1;padding:3px 6px;border-radius:6px;color:#fff}
+.rar.N{background:#8fa3b8}.rar.R{background:#3b9ad9}.rar.SR{background:#9a5cf0}.rar.SSR{background:linear-gradient(90deg,#f0712c,#e2477f,#9a5cf0)}
+
+/* draw tab */
+.tickets-hero{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.tickets-hero .big-ticket{width:64px;height:64px;color:var(--accent)}
+.tickets-hero b{font-family:"Baloo 2",var(--body);font-size:2.2rem;line-height:1;color:var(--accent)}
+.machines{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.machine{display:flex;flex-direction:column;gap:8px;align-items:stretch;background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:12px;box-shadow:0 3px 0 var(--line)}
+.machine .mini{height:150px;display:grid;place-items:center;border-radius:14px;background:var(--sunk);overflow:hidden}
+.machine h3{text-align:center}
+.machine p{margin:0;text-align:center;font-size:.85rem;color:var(--muted)}
+.odds{font-size:.8rem;color:var(--muted);text-align:center}
+
+/* stage overlay */
+.stage-wrap{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:rgba(40,26,16,.62);
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.stage{width:min(360px,100%);background:var(--surface);border-radius:26px;padding:20px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;box-shadow:0 8px 0 rgba(0,0,0,.18);animation:pop .3s}
+.stage .scene{width:260px;height:260px;max-width:100%;position:relative}
+.reveal .av{width:150px;height:150px;animation:pop .5s}
+.reveal .rar{position:static;font-size:.9rem;padding:4px 10px}
+.reveal h2{font-size:1.5rem}
+.glow{position:relative}
+.glow::before{content:"";position:absolute;inset:-26px;border-radius:50%;background:conic-gradient(from 0deg,var(--sun),transparent 20%,var(--sun) 40%,transparent 60%,var(--sun) 80%,transparent);opacity:.55;animation:spin 6s linear infinite;z-index:-1}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* claw machine */
+.claw-m{position:absolute;inset:0;display:flex;flex-direction:column}
+.claw-glass{position:relative;flex:1;border:6px solid var(--g12);border-bottom:0;border-radius:20px 20px 0 0;background:linear-gradient(#e9f7ff,#cdeeff);overflow:hidden}
+.claw-rail{position:absolute;top:10px;left:8px;right:8px;height:6px;border-radius:3px;background:#9aa8b8}
+.claw{position:absolute;top:12px;left:24px;width:44px;display:flex;flex-direction:column;align-items:center}
+.claw .cable{width:3px;height:26px;background:#6b7787}
+.claw .head{width:26px;height:12px;border-radius:6px 6px 3px 3px;background:#6b7787}
+.claw .fingers{position:relative;width:40px;height:22px}
+.claw .fingers i{position:absolute;top:0;width:5px;height:22px;background:#6b7787;border-radius:3px}
+.claw .fingers i:first-child{left:6px;transform-origin:top;transform:rotate(22deg)}
+.claw .fingers i:last-child{right:6px;transform-origin:top;transform:rotate(-22deg)}
+.claw .caught{position:absolute;top:58px;width:34px;height:34px;border-radius:50%;opacity:0}
+.plushes{position:absolute;left:0;right:0;bottom:0;height:70px}
+.plushes i{position:absolute;bottom:0;width:38px;height:38px;border-radius:50%;box-shadow:inset -5px -6px 0 rgba(0,0,0,.12)}
+.claw-base{height:54px;background:var(--g12);border-radius:0 0 16px 16px;display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.chute{width:52px;height:30px;border-radius:8px;background:rgba(0,0,0,.25)}
+.claw-btn{width:30px;height:30px;border-radius:50%;background:var(--sun);box-shadow:0 4px 0 #b88a10}
+.run .claw{animation:clawRun 3s ease-in-out forwards}
+.run .claw .fingers i:first-child{animation:gripL 3s forwards}
+.run .claw .fingers i:last-child{animation:gripR 3s forwards}
+.run .claw .caught{animation:caught 3s forwards}
+@keyframes clawRun{0%{transform:translate(0,0)}22%{transform:translate(118px,0)}42%{transform:translate(118px,118px)}55%{transform:translate(118px,118px)}75%{transform:translate(118px,0)}92%,100%{transform:translate(0,0)}}
+@keyframes gripL{0%,46%{transform:rotate(22deg)}52%,100%{transform:rotate(-6deg)}}
+@keyframes gripR{0%,46%{transform:rotate(-22deg)}52%,100%{transform:rotate(6deg)}}
+@keyframes caught{0%,50%{opacity:0}52%,92%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(90px)}}
+
+/* capsule machine */
+.gacha-m{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center}
+.dome{position:relative;width:190px;height:150px;border-radius:95px 95px 18px 18px;background:radial-gradient(circle at 35% 30%,#ffffffcc,#d8f1ff 55%);border:6px solid var(--g9);overflow:hidden}
+.dome i{position:absolute;width:40px;height:40px;border-radius:50%;background:linear-gradient(var(--c) 50%,#fff 50%);box-shadow:inset 0 0 0 2px rgba(0,0,0,.08)}
+.gbody{width:210px;height:96px;background:var(--g9);border-radius:12px 12px 22px 22px;position:relative}
+.knob{position:absolute;left:30px;top:22px;width:46px;height:46px;border-radius:50%;background:#fff;border:5px solid var(--sun)}
+.knob::after{content:"";position:absolute;left:50%;top:6px;bottom:6px;width:8px;margin-left:-4px;border-radius:4px;background:var(--sun)}
+.gslot{position:absolute;right:30px;top:28px;width:58px;height:40px;border-radius:10px;background:rgba(0,0,0,.28)}
+.cap-out{position:absolute;right:52px;top:186px;width:44px;height:44px;opacity:0}
+.cap-out i{position:absolute;left:0;width:44px;height:22px}
+.cap-out i:first-child{top:0;border-radius:22px 22px 0 0;background:var(--c)}
+.cap-out i:last-child{bottom:0;border-radius:0 0 22px 22px;background:#fff;box-shadow:inset 0 -3px 0 rgba(0,0,0,.08)}
+.run .knob{animation:knob 1.3s ease-in-out forwards}
+.run .dome i{animation:jiggle .35s 3 alternate}
+.run .cap-out{animation:capDrop 1.1s 1.3s cubic-bezier(.3,1.6,.5,1) forwards}
+.run .cap-out i:first-child{animation:capTop .6s 2.6s forwards}
+.run .cap-out i:last-child{animation:capBot .6s 2.6s forwards}
+@keyframes knob{to{transform:rotate(720deg)}}
+@keyframes jiggle{to{transform:translate(3px,-4px) rotate(8deg)}}
+@keyframes capDrop{0%{opacity:1;transform:translate(0,-30px) scale(.6)}100%{opacity:1;transform:translate(-60px,20px) scale(1.3)}}
+@keyframes capTop{to{transform:translate(-10px,-30px) rotate(-30deg)}}
+@keyframes capBot{to{transform:translate(8px,10px) rotate(12deg)}}
+
+/* treasure chest */
+.chest-m{position:absolute;inset:0;display:grid;place-items:center}
+.rays{position:absolute;width:240px;height:240px;border-radius:50%;background:repeating-conic-gradient(var(--sun) 0 12deg,transparent 12deg 30deg);opacity:0}
+.chest{position:relative;width:170px;height:130px;margin-top:40px}
+.chest .box{position:absolute;bottom:0;left:0;right:0;height:84px;background:#b8743a;border-radius:6px 6px 14px 14px;border:5px solid #7a4a20}
+.chest .box::before{content:"";position:absolute;left:-5px;right:-5px;top:22px;height:12px;background:var(--sun)}
+.chest .lock{position:absolute;left:50%;top:12px;width:28px;height:34px;margin-left:-14px;background:var(--sun);border-radius:6px;border:4px solid #b88a10;z-index:1}
+.chest .lid{position:absolute;bottom:80px;left:0;right:0;height:52px;background:#c98446;border:5px solid #7a4a20;border-radius:60px 60px 6px 6px;transform-origin:10% 100%}
+.chest .lid::after{content:"";position:absolute;left:-5px;right:-5px;bottom:8px;height:10px;background:var(--sun)}
+.run .chest{animation:chestShake 1.4s ease-in-out}
+.run .chest .lid{animation:lidOpen .6s 1.5s cubic-bezier(.3,1.6,.5,1) forwards}
+.run .rays{animation:rays 1.2s 1.6s forwards}
+@keyframes chestShake{0%,100%{transform:rotate(0)}10%,30%,50%,70%{transform:rotate(-5deg)}20%,40%,60%,80%{transform:rotate(5deg)}}
+@keyframes lidOpen{to{transform:rotate(-38deg) translate(-6px,-14px)}}
+@keyframes rays{0%{opacity:0;transform:scale(.4) rotate(0)}100%{opacity:.75;transform:scale(1.1) rotate(60deg)}}
+
+/* reward + send */
+.reward{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--gold-soft);border:2px solid var(--sun);border-radius:18px;padding:12px 14px}
+.reward svg{width:42px;height:42px;color:var(--gold);flex:none}
+.reward div{flex:1;min-width:160px;display:flex;flex-direction:column}
+.reward strong{font-family:var(--round);font-weight:400;font-size:1.15rem;color:var(--gold)}
+.send-who{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.send-who .av{width:40px;height:40px}
+.note{background:var(--sunk);border-radius:14px;padding:10px 14px;font-size:.88rem;color:var(--muted);margin:0}
+nav button{white-space:nowrap}
+@media (max-width:440px){nav button{font-size:.92rem;padding:8px 2px}}
+</style>
+
+<div class="app">
+  <header>
+    <div class="brand">
+      <span class="logo" aria-hidden="true">Aa</span>
+      <div class="brand-text"><h1>單字練習站</h1><span>聽、看、說、拼，一起把單字記起來</span></div>
+    </div>
+    <div class="me" id="me"></div>
+  </header>
+  <div class="grades" id="gradeBar" role="tablist" aria-label="選擇年級"></div>
+  <div class="lessons" id="lessonBar" role="group" aria-label="選擇課別"></div>
+  <nav role="tablist">
+    <button role="tab" data-tab="learn" aria-selected="true">學習</button>
+    <button role="tab" data-tab="quiz" aria-selected="false">檢測</button>
+    <button role="tab" data-tab="style" aria-selected="false">造型</button>
+    <button role="tab" data-tab="draw" aria-selected="false">抽獎</button>
+    <button role="tab" data-tab="sets" aria-selected="false">單字集</button>
+  </nav>
+  <main id="view"></main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const ICON_SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+const ICON_MIC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+
+const TYPES={
+  listen:{name:"聽音選字",pts:10,lv:1,desc:"聽發音，從四個選項選出正確的英文單字"},
+  meaning:{name:"看中文選英文",pts:15,lv:2,desc:"看中文意思，選出對應的英文單字"},
+  speak:{name:"念出單字",pts:20,lv:3,desc:"看單字念出來，用語音辨識判斷對錯，每題 3 次機會"},
+  spell:{name:"聽音拼字",pts:30,lv:4,desc:"看中文、聽發音，把整個單字拼出來"},
+  order:{name:"例句重組",pts:40,lv:5,desc:"把打散的字詞排回正確的例句"}
+};
+/* 課本單字：康軒國中英語 八上 L3–L6 單字例句小考卷 */
+const LESSONS=[{"id":"L3","name":"第 3 課","words":[{"w":"chicken","m":"雞","x":"Mr. Jones keeps some chickens for their eggs.","t":"Jones 先生養了一些雞來生蛋。","a":"chickens"},{"w":"ant","m":"螞蟻","x":"There are many ants around the sugar.","t":"糖周圍有很多螞蟻。","a":"ants"},{"w":"ugly","m":"醜的","x":"Many people don’t buy ugly fruits. In fact, they are delicious.","t":"很多人不買長相醜的水果。事實上，它們很美味。","a":"ugly"},{"w":"duck","m":"鴨子","x":"Doris: Where are the noises from? Paul: They’re from the ducks in the pond.","t":"Doris：這些噪音是從哪裡來的？ Paul：是池塘裡的鴨子發出來的。","a":"ducks"},{"w":"goose","m":"鵝（複數 geese）","x":"Terry: What are those birds in the lake? Are they ducks? Hebe: No, they are geese.","t":"Terry：湖裡的那些是什麼鳥？牠們是鴨子嗎？ Hebe：不，牠們是鵝。","a":"geese"},{"w":"frog","m":"青蛙","x":"A frog usually lives near water and moves by jumping.","t":"青蛙通常生活在水邊並透過跳躍來移動。","a":"frog"},{"w":"cow","m":"母牛","x":"The farmer has twenty cows and thirty pigs on his farm.","t":"這位農夫的農場裡有二十頭母牛和三十頭豬。","a":"cows"},{"w":"map","m":"地圖","x":"Nancy is bad at reading maps. She can’t find her ways often.","t":"Nancy 不擅長看地圖。她經常找不到自己的路。","a":"maps"},{"w":"beginning","m":"開始；開端","x":"In the beginning, I didn’t like Calvin. But now, we are good friends.","t":"一開始，我不喜歡 Calvin。但是現在我們是好朋友。","a":"beginning"},{"w":"middle","m":"中間","x":"There is a big round table in the middle of the dining room.","t":"餐廳中間有一張大圓桌。","a":"middle"},{"w":"quarter","m":"一刻鐘（十五分鐘）；四分之一","x":"It’s a quarter to twelve. Let’s meet 15 minutes later and have lunch together.","t":"現在是十一點四十五分。我們 15 分鐘後見面，一起吃午餐。","a":"quarter"},{"w":"along","m":"沿著","x":"Jamie takes a walk along the river after dinner every day.","t":"Jamie 每天晚餐後都會沿著河邊散步。","a":"along"},{"w":"clear","m":"晴朗的；清楚的","x":"The weather is warm, and the sky is clear.","t":"天氣溫暖，天空晴朗。","a":"clear"},{"w":"pass","m":"經過","x":"Pearl said hi when she passed our house.","t":"Pearl 經過我們家時向我們打招呼。","a":"passed"},{"w":"forest","m":"森林","x":"There are a lot of trees in the forest. The air there is very clean.","t":"森林裡有很多樹。那裡的空氣非常清新。","a":"forest"},{"w":"dry","m":"乾燥的","x":"The weather is dry in Sydney in winter. They don’t have much rain.","t":"雪梨的冬季天氣乾燥。不太下雨。","a":"dry"},{"w":"something","m":"某事；某物","x":"There must be something wrong with the air con. It’s really hot here.","t":"空調肯定有問題。這裡真的很熱。","a":"something"},{"w":"jar","m":"罐子","x":"Mom: Help me put the rice into the jar, Jack. Jack: OK, Mom.","t":"Mom：Jack，幫我把米放入罐子。 Jack：好的，媽媽。","a":"jar"},{"w":"beak","m":"鳥嘴","x":"Birds use their beaks to pick up food.","t":"鳥用牠們的鳥嘴取食。","a":"beaks"},{"w":"reach","m":"伸手；到達","x":"Tony reached into his bag and took out his cellphone.","t":"Tony 將手伸進他的袋子並拿出他的手機。","a":"reached"},{"w":"rock","m":"岩石","x":"You can see many rocks at the beach.","t":"你可以在海灘上看到許多岩石。","a":"rocks"},{"w":"fly","m":"飛","x":"The poor bird couldn’t fly because it was hurt.","t":"這隻可憐的小鳥因受傷而無法飛翔。","a":"fly"},{"w":"pick up","m":"撿起","x":"Kelly picked up the clothes on the floor.","t":"Kelly 撿起地板上的衣服。","a":"picked up"},{"w":"back","m":"回到原處","x":"Rebecca went back to her room and took a rest.","t":"Rebecca 回到她的房間休息。","a":"back"},{"w":"drop","m":"掉落；使落下","x":"Andy dropped his keys on the bus on his way home.","t":"Andy 在回家的路上把鑰匙掉在公車上了。","a":"dropped"},{"w":"into","m":"進入","x":"Don’t go into my room, please.","t":"請不要進入我的房間。","a":"into"},{"w":"good job","m":"做得好","x":"Sean: Mom, my team won the baseball game today. Mom: Good job!","t":"Sean：媽媽，我的隊伍今天贏了棒球比賽。 Mom：做得好！","a":"Good job"},{"w":"be proud of","m":"以…為榮","x":"We are proud of the players on the school team.","t":"我們以校隊的運動員為榮。","a":"are proud of"},{"w":"back and forth","m":"來回地","x":"Jay walked back and forth in his room.","t":"Jay 在他的房間裡來回地走動。","a":"back and forth"},{"w":"finally","m":"最後；終於","x":"After five months, Robin finally found a job.","t":"五個月後，Robin 最後找到工作了。","a":"finally"},{"w":"top","m":"頂端","x":"The school is on the top of the mountain.","t":"這座學校位於山頂。","a":"top"},{"w":"past","m":"經過","x":"Our cat ran past me and out of the room.","t":"我們的貓從我身邊跑過，跑出了房間。","a":"past"},{"w":"finish","m":"完成","x":"Joe took a rest after he finished lunch.","t":"Joe 吃完午餐後休息了一下。","a":"finished"},{"w":"anything","m":"任何事物","x":"Is there anything special about the story?","t":"這個故事有任何特別之處嗎？","a":"anything"},{"w":"shout","m":"大叫","x":"Never shout at your parents and teachers.","t":"永遠不要對你的父母和老師大喊大叫。","a":"shout"},{"w":"joy","m":"喜悅","x":"Rosa loves exercise. She finds joy in playing sports.","t":"Rosa 熱愛運動。她從運動中找到了喜悅。","a":"joy"},{"w":"pool","m":"游泳池","x":"Daisy bought a house with a pool. She can swim in her house.","t":"Daisy 買了一棟有游泳池的房子。她可以在家裡游泳。","a":"pool"},{"w":"when","m":"當…時候","x":"Dad was cooking dinner when I opened the door.","t":"當我打開門時，爸爸正在煮晚餐。","a":"when"},{"w":"close","m":"接近的","x":"Jodie is standing close to me in the photo.","t":"Jodie 在這張照片裡站得離我很近。","a":"close"}],"builtin":true},{"id":"L4","name":"第 4 課","words":[{"w":"waiter","m":"男服務生","x":"Helen asked the waiter to bring her the menu.","t":"Helen 要求這位男服務生拿菜單給她。","a":"waiter"},{"w":"waitress","m":"女服務生","x":"The waitress is very nice to children.","t":"那位女服務生對孩子們很好。","a":"waitress"},{"w":"housewife","m":"家庭主婦","x":"Being a housewife isn’t easy for me.","t":"對我來說，當家庭主婦並不容易。","a":"housewife"},{"w":"mailman","m":"郵差","x":"Ted is a mailman. He is proud of his job.","t":"Ted 是一位郵差。他對他的工作感到驕傲。","a":"mailman"},{"w":"police officer","m":"警察","x":"The police officer helped the kid find his way home.","t":"警察幫助那個小孩找到回家的路。","a":"police officer"},{"w":"secretary","m":"祕書","x":"Ivy’s secretary helps her with a lot of things every day.","t":"Ivy 的祕書每天協助她很多事情。","a":"secretary"},{"w":"factory worker","m":"工廠工人","x":"Hank is a factory worker. He works at a car factory.","t":"Hank 是一名工廠工人。他在一家汽車工廠工作。","a":"factory worker"},{"w":"actor","m":"男演員","x":"Elvis was a worker before. However, he is an actor now.","t":"Elvis 以前是一名工人。不過，他現在是一名演員。","a":"actor"},{"w":"actress","m":"女演員","x":"Peggy is good at acting. Being an actress is her dream.","t":"Peggy 擅長表演。當女演員是她的夢想。","a":"actress"},{"w":"reporter","m":"記者","x":"Meg plans to be a sports reporter in the future.","t":"Meg 計畫在未來當一名體育記者。","a":"reporter"},{"w":"singer","m":"歌手","x":"The singer is good at English songs.","t":"那名歌手擅長英文歌曲。","a":"singer"},{"w":"writer","m":"作家","x":"Samuel wants to be a writer of children’s books.","t":"Samuel 想成為兒童書作家。","a":"writer"},{"w":"music","m":"音樂","x":"Please be quiet. I’m listening to music.","t":"請安靜。我正在聽音樂。","a":"music"},{"w":"guitar","m":"吉他","x":"Tom can play the guitar.","t":"Tom 會彈吉他。","a":"guitar"},{"w":"drum","m":"鼓","x":"Jessica learned to play the drums when she was ten.","t":"Jessica 十歲時就學會打鼓了。","a":"drums"},{"w":"future","m":"未來","x":"Oliver wants to be a police officer in the future.","t":"Oliver 未來想當一名警察。","a":"future"},{"w":"interesting","m":"有趣的","x":"The movie is interesting. I like it a lot.","t":"這部電影很有趣。我非常喜歡它。","a":"interesting"},{"w":"camera","m":"相機","x":"Vicky bought a camera for her father yesterday.","t":"Vicky 昨天買了一臺相機給她爸爸。","a":"camera"},{"w":"important","m":"重要的","x":"Having enough sleep is important for everyone.","t":"有充足的睡眠對每一個人都很重要。","a":"important"},{"w":"popular","m":"受歡迎的","x":"The YouTuber is popular with housewives.","t":"這位 YouTuber 深受家庭主婦的喜愛。","a":"popular"},{"w":"gift","m":"天分；禮物","x":"Darren has a gift for music.","t":"Darren 有音樂天分。","a":"gift"},{"w":"tell","m":"告訴；講述","x":"Can you tell us about your school life in the UK?","t":"你可以跟我們講講你在英國的學校生活嗎？","a":"tell"},{"w":"funny","m":"好笑的","x":"The video is funny. Let’s watch it again.","t":"這個影片很好笑。我們再看一次吧。","a":"funny"},{"w":"plan","m":"計畫","x":"We plan to visit Hualien next weekend.","t":"我們計畫下週末造訪花蓮。","a":"plan"},{"w":"star","m":"明星","x":"Emma Stone is a popular movie star.","t":"Emma Stone 是一位受歡迎的電影明星。","a":"star"},{"w":"without","m":"沒有","x":"You can’t work for six hours without taking a break.","t":"你不能連續工作六個小時不休息。","a":"without"},{"w":"dream","m":"夢","x":"I had a bad dream last night. It was terrible.","t":"我昨晚做了一個惡夢。真是太可怕了。","a":"dream"},{"w":"teenager","m":"青少年","x":"Mr. and Mrs. Wu’s son is fourteen. He is a teenager.","t":"吳氏夫婦的兒子十四歲。他是一位青少年。","a":"teenager"},{"w":"exciting","m":"令人興奮的","x":"Playing video games is exciting for teenagers.","t":"玩電玩遊戲對青少年來說是一件令人興奮的事情。","a":"exciting"},{"w":"fight","m":"打鬥；對抗","x":"Pro gamers have to look for new ways to fight different players.","t":"專業玩家必須尋找新方法對抗不同的玩家。","a":"fight"},{"w":"one another","m":"彼此","x":"We share our stories with one another.","t":"我們彼此分享自己的故事。","a":"one another"},{"w":"money","m":"錢","x":"David lost his money on his way to school.","t":"David 在上學途中掉了錢。","a":"money"},{"w":"famous","m":"有名的","x":"Kenting is famous for its beautiful beaches.","t":"墾丁以它的美麗海灘聞名。","a":"famous"},{"w":"train","m":"訓練","x":"Alice is training her dog to sit.","t":"Alice 正在訓練她的狗坐下。","a":"training"},{"w":"sadly","m":"令人遺憾地","x":"Sadly, Tony lost his job last week.","t":"令人遺憾地，Tony 上週失去了他的工作。","a":"Sadly"},{"w":"team up with","m":"和…組隊","x":"Sharon is good at basketball. Let’s team up with her.","t":"Sharon 擅長籃球。我們和她組隊吧。","a":"team up with"},{"w":"have to","m":"必須","x":"I have to take care of my little sister tonight because my parents aren’t home.","t":"我今晚必須照顧我的妹妹，因為我父母不在家。","a":"have to"},{"w":"stay up","m":"熬夜","x":"Don’t stay up playing video games. It’s bad for your eyes.","t":"不要熬夜玩電玩遊戲。那對你的眼睛不好。","a":"stay up"}],"builtin":true},{"id":"L5","name":"第 5 課","words":[{"w":"temple","m":"寺廟","x":"My grandma goes to the temple every week.","t":"我奶奶每週去那間寺廟。","a":"temple"},{"w":"supermarket","m":"超級市場","x":"We’re going to buy some food at the supermarket this afternoon.","t":"我們今天下午將會去超級市場買一些食物。","a":"supermarket"},{"w":"restaurant","m":"餐廳","x":"Let’s have dinner at the restaurant.","t":"我們在那間餐廳吃晚餐吧。","a":"restaurant"},{"w":"bank","m":"銀行","x":"We have little money in the bank.","t":"我們銀行裡沒什麼錢。","a":"bank"},{"w":"church","m":"教堂","x":"Lucy: Do you go to church? Fred: Yes, I go to church every Sunday.","t":"Lucy：你去教堂做禮拜嗎？ Fred：是的，我每星期日去教堂做禮拜。","a":"church"},{"w":"bakery","m":"麵包店","x":"Mrs. Taylor runs a bakery with her sister.","t":"Taylor 太太和她的妹妹經營一間麵包店。","a":"bakery"},{"w":"bridge","m":"橋","x":"Cross the bridge, and you’ll see me by the river.","t":"跨越這座橋，你會在河邊看見我。","a":"bridge"},{"w":"hotel","m":"飯店","x":"They checked in at the hotel after 3 p.m. yesterday.","t":"他們昨天下午三點後入住那間飯店。","a":"hotel"},{"w":"department store","m":"百貨公司","x":"Julia often buys clothes in department stores.","t":"Julia 時常在百貨公司買衣服。","a":"department stores"},{"w":"metro station","m":"捷運站","x":"Kathy: Don’t run in the metro station, Vicky. Vicky: I’m sorry.","t":"Kathy：Vicky，不要在捷運站裡奔跑。 Vicky：我很抱歉。","a":"metro station"},{"w":"bookstore","m":"書店","x":"I often buy books in that bookstore.","t":"我經常在那間書店買書。","a":"bookstore"},{"w":"post office","m":"郵局","x":"Mrs. Lin went to the post office and sent a letter to her friend in the USA.","t":"林太太到郵局寄信給她在美國的朋友。","a":"post office"},{"w":"flower shop","m":"花店","x":"Todd loves flowers. He is going to run a flower shop in the future.","t":"Todd 喜愛花。他未來將會經營一間花店。","a":"flower shop"},{"w":"trip","m":"旅行","x":"They will take a trip to Taitung next weekend.","t":"他們下個週末要去臺東旅行。","a":"trip"},{"w":"during","m":"在…期間","x":"You can go to the restroom during the break.","t":"你可以在休息時間去洗手間。","a":"during"},{"w":"vacation","m":"假期","x":"The Lin family went on vacation last month.","t":"林家人上個月去度假。","a":"vacation"},{"w":"will","m":"將會（否定 won't）","x":"George: Will you help me with my homework? William: No, I won’t.","t":"George：你將協助我做回家作業嗎？ William：不，我不會。","a":"Will won’t"},{"w":"own","m":"自己的","x":"I like living on my own.","t":"我喜歡獨自生活。","a":"own"},{"w":"local","m":"當地的","x":"My mom works at the local supermarket.","t":"我媽媽在那間當地的超級市場工作。","a":"local"},{"w":"tour","m":"旅遊行程","x":"We plan to join the local tour in Bangkok.","t":"我們計畫參加曼谷當地的旅遊行程。","a":"tour"},{"w":"spend","m":"花費（時間、金錢）","x":"Maggie spent half an hour walking to the bakery.","t":"Maggie 花了半小時走到那間麵包店。","a":"spent"},{"w":"thousand","m":"一千","x":"Ivy spent two thousand NT dollars on the coat.","t":"Ivy 花了新臺幣兩千元買那件大衣。","a":"thousand"},{"w":"each","m":"每個","x":"Each child can get a toy car for free.","t":"每個孩子可以免費得到一臺玩具車。","a":"Each"},{"w":"pay","m":"付錢","x":"I paid one thousand NT dollars for this cellphone.","t":"我付了新臺幣一千元買這支手機。","a":"paid"},{"w":"tomorrow","m":"明天","x":"Mandy and I are going to visit Mr. Jones tomorrow.","t":"Mandy 和我明天要去拜訪 Jones 先生。","a":"tomorrow"},{"w":"almost","m":"幾乎","x":"It was almost two o’clock when Eric left.","t":"Eric 離開時幾乎是兩點了。","a":"almost"},{"w":"decide","m":"決定","x":"It was raining then, so we decided to stay at the hotel.","t":"當時正在下雨，所以我們決定住在飯店。","a":"decided"},{"w":"cost","m":"花費（金額）","x":"It cost me five thousand NT dollars to buy the guitar.","t":"買這把吉他花了我新臺幣五千元。","a":"cost"},{"w":"fan","m":"迷；粉絲","x":"Terry is a big fan of baseball.","t":"Terry 是棒球迷。","a":"fan"},{"w":"leave for","m":"動身前往","x":"Jenny and Paul are going to leave for Tokyo tomorrow. They will stay there for a week.","t":"Jenny 和 Paul 明天要前往東京。他們將在那裡待一星期。","a":"leave for"},{"w":"vendor","m":"小販","x":"There are some flower vendors outside the temple.","t":"廟的外面有一些賣花的攤販。","a":"vendors"},{"w":"quick","m":"迅速的","x":"I tried to catch her, but she was too quick for me.","t":"我試著抓住她，但對我而言她太迅速了。","a":"quick"},{"w":"stall","m":"攤位","x":"Jason runs a fruit stall in the market.","t":"Jason 在市場經營一個水果攤。","a":"stall"},{"w":"careful","m":"小心的","x":"Be careful! There is a car behind you.","t":"小心！你後面有一臺車。","a":"careful"},{"w":"boat","m":"船","x":"Mr. Simpson has two fishing boats.","t":"Simpson 先生有兩艘漁船。","a":"boats"},{"w":"sell","m":"賣","x":"I sold my bag to Jamie for NT$100.","t":"我把我的包包以新臺幣一百元賣給 Jamie。","a":"sold"},{"w":"low","m":"低的","x":"Our office is in a low building.","t":"我們的辦公室在一棟低矮的建築物裡。","a":"low"},{"w":"price","m":"價格","x":"Bill sold his house at a high price.","t":"Bill 以高價賣出他的房子。","a":"price"},{"w":"remember","m":"記得","x":"Remember to send me a message when you get home.","t":"當你到家時，記得傳個訊息給我。","a":"Remember"},{"w":"cash","m":"現金","x":"Do you have any cash on you?","t":"你身上有任何現金嗎？","a":"cash"},{"w":"wonderful","m":"極好的","x":"We had a wonderful time in Penghu this summer.","t":"今年夏天我們在澎湖玩得很愉快。","a":"wonderful"}],"builtin":true},{"id":"L6","name":"第 6 課","words":[{"w":"airplane","m":"飛機（= plane）","x":"The movie star has his own airplane.","t":"那位電影明星有他自己的飛機。","a":"airplane"},{"w":"bicycle","m":"腳踏車（= bike）","x":"I can’t ride a bicycle. Can you teach me?","t":"我不會騎腳踏車。你可以教我嗎？","a":"bicycle"},{"w":"truck","m":"卡車","x":"Driving a truck is my father’s job.","t":"開卡車是我爸爸的工作。","a":"truck"},{"w":"scooter","m":"輕型機車","x":"Megan usually rides her scooter to work.","t":"Megan 經常騎她的輕型機車上班。","a":"scooter"},{"w":"motorcycle","m":"重型機車","x":"I didn’t buy this motorcycle because it is too expensive.","t":"我沒有買這臺重型機車，因為它太貴了。","a":"motorcycle"},{"w":"taxi","m":"計程車","x":"Let’s take a taxi to the airport.","t":"我們搭計程車到機場吧。","a":"taxi"},{"w":"ship","m":"船","x":"They went to Green Island by ship yesterday.","t":"他們昨天搭船去綠島。","a":"ship"},{"w":"north","m":"北方","x":"The strong wind is coming from the north.","t":"這強勁的風來自北方。","a":"north"},{"w":"west","m":"西方","x":"It’ll be sunny in the east but rainy in the west tomorrow.","t":"明天東部的天氣晴朗，但西部多雨。","a":"west"},{"w":"south","m":"南方","x":"The Wang family spent their vacation in the south of Japan.","t":"王家人在日本南部度假。","a":"south"},{"w":"east","m":"東方","x":"Taitung is in the east of Taiwan.","t":"臺東在臺灣的東邊。","a":"east"},{"w":"drive","m":"開車","x":"Carl learned to drive when he was twenty.","t":"Carl 在二十歲時學開車。","a":"drive"},{"w":"ride","m":"騎","x":"Frank is good at riding a horse.","t":"Frank 擅長騎馬。","a":"riding"},{"w":"row","m":"划（船）","x":"Sam and I rowed the boat across the lake.","t":"Sam 和我划船到湖的另一邊。","a":"rowed"},{"w":"excuse me","m":"不好意思","x":"Excuse me. Does this bus go to the metro station?","t":"不好意思，這輛公車有到捷運站嗎？","a":"Excuse me"},{"w":"sir","m":"先生","x":"Can I help you, sir?","t":"先生，需要我幫忙嗎？","a":"sir"},{"w":"turn left","m":"左轉","x":"Walk along the road and turn left at the corner.","t":"沿著這條路走並在轉角左轉。","a":"turn left"},{"w":"corner","m":"轉角","x":"The bank is on the corner of Sun Street and Star Road.","t":"那家銀行在 Sun 街和 Star 路的轉角。","a":"corner"},{"w":"straight","m":"直直地","x":"Go straight for two blocks and turn right at the bookstore.","t":"直走兩個街區並在書店右轉。","a":"straight"},{"w":"block","m":"街區","x":"The supermarket is three blocks away.","t":"那間超級市場離這裡有三個街區。","a":"blocks"},{"w":"across from","m":"在…對面","x":"The flower shop is across from the post office.","t":"那間花店在郵局對面。","a":"across from"},{"w":"bottom","m":"底部","x":"I finally found my key at the bottom of my bag.","t":"我終於在袋子的底部找到我的鑰匙。","a":"bottom"},{"w":"rule","m":"規定","x":"Rules are rules. Go to bed now.","t":"規定就是規定。現在上床睡覺。","a":"Rules rules"},{"w":"broken","m":"破掉的","x":"Be careful. There’s broken glass on the floor.","t":"小心。地板上有破玻璃。","a":"broken"},{"w":"shake hands","m":"握手","x":"Mr. White shook hands with the famous writer.","t":"White 先生跟那位有名的作家握了手。","a":"shook hands"},{"w":"favorite","m":"最喜愛的","x":"The basketball court is their favorite place at school.","t":"那個籃球場是他們在學校最喜愛的地方。","a":"favorite"},{"w":"pocket","m":"口袋","x":"Linda took out the money from her pocket.","t":"Linda 從她的口袋拿出錢。","a":"pocket"},{"w":"monster","m":"怪獸","x":"The movie is about a yellow monster. Kids love it very much.","t":"這部電影是關於一隻黃色的怪獸。孩子們非常愛牠。","a":"monster"},{"w":"clerk","m":"店員","x":"Jeff works as a clerk in a shoe store.","t":"Jeff 在一間鞋店當店員。","a":"clerk"},{"w":"convenient","m":"方便的","x":"The metro station is only one block from my place. It’s very convenient for me to walk there.","t":"捷運站離我家只有一個街區。我走路到那裡非常方便。","a":"convenient"},{"w":"mistake","m":"錯誤","x":"I made a mistake. I sent the mail to the wrong person.","t":"我犯了一個錯誤。我把那封信寄給錯的人了。","a":"mistake"},{"w":"parking space","m":"停車位","x":"Debbie spent one hour waiting for a parking space.","t":"Debbie 花了一小時等一個停車位。","a":"parking space"},{"w":"visitor","m":"遊客","x":"There are many visitors in Taipei 101.","t":"臺北 101 有很多遊客。","a":"visitors"},{"w":"cheap","m":"便宜的","x":"My bike was cheap. It only cost me eight hundred NT dollars.","t":"我的腳踏車很便宜。它只花了我新臺幣八百元。","a":"cheap"},{"w":"beef","m":"牛肉","x":"Mike: Let’s eat beef rice for lunch. Gary: Sorry, but I don’t eat beef.","t":"Mike：我們午餐吃牛肉飯吧。 Gary：抱歉，但我不吃牛肉。","a":"beef"}],"builtin":true}];
+LESSONS.forEach(l=>l.grade="8");
+/* 課本單字：康軒國中英語 七上 L1–L6 單字例句小考卷 */
+const LESSONS7=[{"id":"G7L1","name":"第 1 課","grade":"7","words":[{"w":"family","m":"家庭；家人","x":"I’m from a big family.","t":"我來自一個大家庭。","a":"family"},{"w":"husband","m":"丈夫","x":"George and May are husband and wife.","t":"George 和 May 是夫妻。","a":"husband"},{"w":"wife","m":"妻子","x":"Jim is a teacher. His wife is a teacher, too.","t":"Jim 是位老師。他的妻子也是老師。","a":"wife"},{"w":"uncle","m":"伯父；叔叔；舅舅","x":"My uncle is a farmer. He’s cool.","t":"我的叔父是農夫。他很酷。","a":"uncle"},{"w":"aunt","m":"伯母；嬸嬸；阿姨","x":"Gary: Who is that tall woman? Brad: She’s my aunt.","t":"Gary：那個高的女人是誰？ Brad：她是我的嬸嬸。","a":"aunt"},{"w":"cousin","m":"堂（表）兄弟姊妹","x":"Bill is my cousin. His father is my uncle.","t":"Bill 是我的堂哥。他的父親是我的伯父。","a":"cousin"},{"w":"son","m":"兒子","x":"This is Allen’s son. His name is Steve.","t":"這是 Allen 的兒子。他的名字是 Steve。","a":"son"},{"w":"daughter","m":"女兒","x":"Sue’s daughter is two years old.","t":"Sue 的女兒兩歲。","a":"daughter"},{"w":"parent","m":"父親或母親（複數：雙親）","x":"I’m Mr. and Mrs. Johnson’s daughter. They are my parents.","t":"我是 Johnson 夫婦的女兒。他們是我的雙親。","a":"parents"},{"w":"child","m":"小孩（複數 children）","x":"Jimmy and Emma are Mr. Wilson’s children.","t":"Jimmy 與 Emma 是 Wilson 先生的孩子。","a":"children"},{"w":"young","m":"年輕的","x":"Ivy: Is that young woman your sister? Ben: No, she’s my mom.","t":"Ivy：那個年輕的女人是你的姐姐嗎？ Ben：不，她是我媽媽。","a":"young"},{"w":"man","m":"男人","x":"The old man is my grandpa.","t":"這個老男人是我的祖父。","a":"man"},{"w":"handsome","m":"英俊的","x":"Jim is a tall and handsome man.","t":"Jim 是個高大又英俊的男人。","a":"handsome"},{"w":"our","m":"我們的","x":"Alex: Is that our car? Kelly: No, it’s not. It’s Mr. Wang’s car.","t":"Alex：那是我們的汽車嗎？ Kelly：不，它不是。它是王先生的汽車。","a":"our"},{"w":"PE","m":"體育（課）","x":"Alice is a PE teacher. She’s nice to her students.","t":"Alice 是體育老師。她對她的學生很好。","a":"PE"},{"w":"really","m":"真地","x":"Pam: I’m from Yunlin. Ned: Really? Me, too.","t":"Pam：我來自雲林。 Ned：真地嗎？我也是。","a":"Really"},{"w":"classroom","m":"教室","x":"Our teacher is in the classroom now.","t":"我們的老師現在在教室裡。","a":"classroom"},{"w":"same","m":"相同的","x":"My dog and your cat are in the same color.","t":"我的狗和你的貓是同一種顏色。","a":"same"},{"w":"class","m":"班級；課","x":"Wendy and Fiona are not in the same class this year.","t":"Wendy 和 Fiona 今年沒有在同一班。","a":"class"},{"w":"again","m":"再一次","x":"Hey, Jane. We are in the same class again!","t":"嘿，Jane。我們又在同一班了！","a":"again"},{"w":"nice to meet you","m":"很高興認識你","x":"Eric: Hi, I’m Eric. Jay: Nice to meet you, Eric. I’m Jay.","t":"Eric：嗨，我是 Eric。 Jay：很高興認識你，Eric。我是 Jay。","a":"Nice to meet you"},{"w":"too","m":"也","x":"Sue: My brother is a cook. Tom: My brother is a cook, too.","t":"Sue：我的哥哥是廚師。 Tom：我的哥哥也是廚師。","a":"too"},{"w":"news","m":"消息；新聞","x":"Chris: Good news. Our English teacher is Mrs. Lin. Kevin: That’s great!","t":"Chris：好消息。我們的英文老師是林老師。 Kevin：太好了！","a":"news"},{"w":"problem","m":"問題","x":"Dad: Wash the apples now. Son: No problem.","t":"Dad：現在去洗蘋果。 Son：沒問題。","a":"problem"},{"w":"strict","m":"嚴格的","x":"Mr. Wang is a strict math teacher.","t":"王老師是個嚴格的數學老師。","a":"strict"},{"w":"junior high school","m":"國中","x":"Martin is fifteen years old. He’s a junior high school student.","t":"Martin 15 歲。他是個國中生。","a":"junior high school"},{"w":"warm","m":"溫暖的","x":"I’m from a warm family. My parents are nice to me.","t":"我來自一個溫暖的家庭。我的雙親對我很好。","a":"warm"},{"w":"farmer","m":"農夫","x":"My dad is a farmer. My uncle is a farmer, too.","t":"我的爸爸是農夫。我的伯父也是農夫。","a":"farmer farmer"},{"w":"cook","m":"廚師；烹調","x":"His grandpa is a great cook.","t":"他的祖父是很棒的廚師。","a":"cook"},{"w":"nurse","m":"護理師","x":"The nurse is nice and warm.","t":"這名護理師人好又溫暖。","a":"nurse"},{"w":"beautiful","m":"美麗的","x":"Ken: The girl is beautiful. What’s her name? Meg: Her name is Joanne.","t":"Ken：這個女孩很漂亮。她的名字是什麼？ Meg：她的名字是 Joanne。","a":"beautiful"},{"w":"woman","m":"女人","x":"Fred: Who’s that thin woman? Tina: She’s Todd’s aunt.","t":"Fred：那個瘦的女人是誰？ Tina：她是 Todd 的阿姨。","a":"woman"},{"w":"doctor","m":"醫生","x":"Dr. Chen is our family doctor.","t":"陳醫師是我們的家庭醫生。","a":"doctor"},{"w":"senior high school","m":"高中","x":"Mr. and Mrs. White’s daughter is seventeen years old. She’s a senior high school student.","t":"White 夫婦的女兒 17 歲。她是個高中生。","a":"senior high school"},{"w":"pet","m":"寵物","x":"Lisa’s pet cat is fat.","t":"Lisa 的寵物貓是胖的。","a":"pet"},{"w":"cute","m":"可愛的","x":"Peggy: The pig is small and cute. Is it your pet? Tony: No, it’s Gary’s pet.","t":"Peggy：這隻豬小又可愛。牠是你的寵物嗎？ Tony：不，牠是 Gary 的寵物。","a":"cute"},{"w":"nice","m":"好的；親切的","x":"Kevin is nice to his family and friends.","t":"Kevin 對他的家人和朋友很好。","a":"nice"}],"builtin":true},{"id":"G7L2","name":"第 2 課","grade":"7","words":[{"w":"monkey","m":"猴子","x":"Mike: What’s your animal sign? Judy: I’m a monkey.","t":"Mike：你的生肖是什麼？ Judy：我屬猴。","a":"monkey"},{"w":"fox","m":"狐狸","x":"Foxes are smart animals.","t":"狐狸是聰明的動物。","a":"Foxes"},{"w":"sheep","m":"綿羊","x":"Diana: Are they goats? Chris: No, they’re sheep.","t":"Diana：牠們是山羊嗎？ Chris：不，牠們是綿羊。","a":"sheep"},{"w":"tiger","m":"老虎","x":"They’re not big cats. They’re tigers.","t":"牠們不是大貓。牠們是老虎。","a":"tigers"},{"w":"zebra","m":"斑馬","x":"Zebras are black and white.","t":"斑馬是黑白色相間。","a":"Zebras"},{"w":"lion","m":"獅子","x":"The book is about a lion family.","t":"這本書是關於一個獅子家庭。","a":"lion"},{"w":"mouse","m":"老鼠（複數 mice）","x":"Steve: What’s that under the table? Lucy: It’s my pet mouse.","t":"Steve：在桌子下面的是什麼？ Lucy：那是我的寵物鼠。","a":"mouse"},{"w":"bear","m":"熊","x":"The teddy bears are from my parents.","t":"這些泰迪熊是我父母送我的。","a":"bears"},{"w":"movie theater","m":"電影院","x":"The new movie theater is big and beautiful.","t":"那間新的電影院既大又漂亮。","a":"movie theater"},{"w":"Chinese","m":"中國的；中文","x":"Chinese tea is a nice drink for Mr. Thompson.","t":"中國茶對 Thompson 先生來說是個好飲品。","a":"Chinese"},{"w":"animal","m":"動物","x":"The movie is about animal friends.","t":"這部電影是關於動物朋友們。","a":"animal"},{"w":"sign","m":"符號；標誌","x":"“+” and “-” are math signs.","t":"「＋」和「—」是數學符號。","a":"signs"},{"w":"rat","m":"大老鼠","x":"Rats are big, but mice are small.","t":"大老鼠體型大，但老鼠體型小。","a":"Rats"},{"w":"ox","m":"公牛","x":"My birth year is 2009. I’m an ox.","t":"我出生的年分是 2009。我屬牛。","a":"ox"},{"w":"rabbit","m":"兔子","x":"The rabbit’s ears are long.","t":"那隻兔子的耳朵是長的。","a":"rabbit’s"},{"w":"dragon","m":"龍","x":"Dragons are great animals to the Chinese.","t":"龍對中國人來說是很棒的動物。","a":"Dragons"},{"w":"snake","m":"蛇","x":"Bob: What are those? Eva: Oh, no. They’re snakes.","t":"Bob：那些是什麼？ Eva：喔，不。牠們是蛇。","a":"snakes"},{"w":"horse","m":"馬","x":"Lisa: Are those animals zebras? Ryan: No, they’re horses.","t":"Lisa：那些動物是斑馬嗎？ Ryan：不，牠們是馬。","a":"horses"},{"w":"goat","m":"山羊","x":"A goat’s milk is good for children.","t":"山羊奶對小孩很好。","a":"goat’s"},{"w":"rooster","m":"公雞","x":"My dad’s animal sign is the rooster. I’m a rooster, too.","t":"我父親的生肖屬雞。我也屬雞。","a":"rooster rooster"},{"w":"smart","m":"聰明的","x":"Foxes are smart. Monkeys are smart, too.","t":"狐狸是聰明的。猴子也是聰明的。","a":"smart smart"},{"w":"energetic","m":"充滿活力的","x":"Angela’s animal sign is the dragon. She’s energetic.","t":"Angela 的生肖屬龍。她充滿活力。","a":"energetic"},{"w":"true","m":"真的","x":"Ray: Your sister is our English teacher. Is that true? Zoe: Yes, it is.","t":"Ray：你的姐姐是我們的英文老師。那是真的嗎？ Zoe：是，那是真的。","a":"true"},{"w":"no wonder","m":"難怪","x":"Your parents are math teachers. No wonder your math is good.","t":"你的雙親是數學老師。難怪你的數學很好。","a":"No wonder"},{"w":"people","m":"人們","x":"Terry: Who are those young people? Robin: They’re my cousins.","t":"Terry：那些年輕人是誰？ Robin：他們是我的堂兄弟。","a":"people"},{"w":"what about","m":"…怎麼樣呢","x":"Jeff: Jason is a nice man. Kate: What about Ted? Jeff: He’s nice, too.","t":"Jeff：Jason 是個好人。 Kate：那 Ted 怎麼樣呢？ Jeff：他人也很好。","a":"What about"},{"w":"people person","m":"人緣好的人","x":"Maggie is nice and warm. She’s a people person.","t":"Maggie 人好又溫暖。她是人緣好的人。","a":"people person"},{"w":"picture","m":"照片；圖片","x":"Sarah: What are these? Lucas: They’re my grandma’s old pictures.","t":"Sarah：這些是什麼？ Lucas：它們是我祖母的舊照片。","a":"pictures"},{"w":"elephant","m":"大象","x":"Elephants’ ears are big.","t":"大象的耳朵是大的。","a":"Elephants’"},{"w":"or","m":"或者","x":"Ruth: Is your mother a doctor or a nurse? Ivan: She is a doctor.","t":"Ruth：你的媽媽是醫生或者是護理師？ Ivan：她是醫生。","a":"or"},{"w":"size","m":"尺寸","x":"Anna: What’s your shoe size? Sean: 15.","t":"Anna：你鞋子的尺寸是多少？ Sean：15 號。","a":"size"},{"w":"different","m":"不同的","x":"Eric and his brother are in different schools.","t":"Eric 和他的哥哥在不同的學校就讀。","a":"different"},{"w":"very","m":"非常","x":"It’s very cold today.","t":"今天非常冷。","a":"very"},{"w":"their","m":"他們的","x":"Their math teacher is my father.","t":"他們的數學老師是我的父親。","a":"Their"},{"w":"meter","m":"公尺","x":"Chris: How tall are you? Vicky: I am 1.6 meters tall.","t":"Chris：你多高？ Vicky：我 1.6 公尺高。","a":"meters"},{"w":"but","m":"但是","x":"Wayne: How’s the white T-shirt? Penny: The size is OK, but the color isn’t good.","t":"Wayne：這件白色 T 恤如何？ Penny：尺寸可以，但是顏色不行。","a":"but"},{"w":"only","m":"只有","x":"Alan’s daughter is only one year old.","t":"Alan 的女兒只有一歲大。","a":"only"},{"w":"lifespan","m":"壽命","x":"A dog’s lifespan is about 15 years.","t":"一隻狗的壽命大約是 15 年。","a":"lifespan"}],"builtin":true},{"id":"G7L3","name":"第 3 課","grade":"7","words":[{"w":"living room","m":"客廳","x":"The living room is big, but the bedroom is small.","t":"客廳是大的，但是臥室是小的。","a":"living room"},{"w":"bedroom","m":"臥室","x":"Adam: Where is Bob? Mary: He’s in his bedroom.","t":"Adam：Bob 在哪裡？ Mary：他在他的臥室裡面。","a":"bedroom"},{"w":"bathroom","m":"浴室","x":"The bathroom is next to the dining room.","t":"浴室在飯廳旁邊。","a":"bathroom"},{"w":"dining room","m":"飯廳","x":"Donna: Where is Jay? Clark: He is in the dining room.","t":"Donna：Jay 在哪裡？ Clark：他在飯廳裡。","a":"dining room"},{"w":"behind","m":"在…後面","x":"Your dog is behind the door.","t":"你的狗在門後面。","a":"behind"},{"w":"in front of","m":"在…前面","x":"Look! The old man is in front of the house.","t":"看！這個老人在房子前面。","a":"in front of"},{"w":"between","m":"在…之間","x":"My bedroom is between the bathroom and the kitchen.","t":"我的臥室在浴室跟廚房中間。","a":"between"},{"w":"next to","m":"在…旁邊","x":"Your watch is next to my cup.","t":"你的手錶在我的杯子旁邊。","a":"next to"},{"w":"near","m":"在…附近","x":"George’s house is near a movie theater.","t":"George 的房子在電影院附近。","a":"near"},{"w":"please","m":"請","x":"Don’t open the door, please.","t":"請不要打開這扇門。","a":"please"},{"w":"house","m":"房子","x":"Our house is near a junior high school.","t":"我們的房子在一所國中附近。","a":"house"},{"w":"quiet","m":"安靜的","x":"Please be quiet in the classroom.","t":"教室內請安靜。","a":"quiet"},{"w":"style","m":"風格","x":"The new style of your house is cool.","t":"你家的新風格很酷。","a":"style"},{"w":"idea","m":"點子；想法","x":"Rudy: Let’s go to the park now. Ryan: Good idea!","t":"Rudy：我們現在去公園吧。 Ryan：好點子！","a":"idea"},{"w":"let's","m":"讓我們","x":"Let’s wait for Angela in the park.","t":"我們一起在公園裡等 Angela 吧。","a":"Let’s"},{"w":"get","m":"得到；拿","x":"Let’s get some ideas from our parents.","t":"讓我們從我們的爸爸媽媽那裡得到一些想法吧。","a":"get"},{"w":"some","m":"一些","x":"Some students are in front of the school.","t":"有些學生在學校前。","a":"Some"},{"w":"tool","m":"工具","x":"Open the door with this tool.","t":"用這項工具開門。","a":"tool"},{"w":"smartphone","m":"智慧型手機","x":"Stella: Is this your smartphone? Philip: Yes. Thank you.","t":"Stella：這是你的智慧型手機嗎？ Philip：是的。謝謝你。","a":"smartphone"},{"w":"step","m":"步驟","x":"Kate: Step one, open the box. Mike: OK. What’s next?","t":"Kate：步驟一，打開箱子。 Mike：OK。接下來呢？","a":"Step"},{"w":"upload","m":"上傳","x":"Please upload the photos here.","t":"請在此處上傳照片。","a":"upload"},{"w":"photo","m":"照片","x":"These are my grandma’s old photos.","t":"這些是我祖母的舊相片。","a":"photos"},{"w":"choose","m":"選擇","x":"Come here and choose your drink, Wendy.","t":"過來這裡選擇你的飲料，Wendy。","a":"choose"},{"w":"type","m":"種類","x":"Annie: What type of juice is this? Benny: It’s apple juice.","t":"Annie：這是什麼種類的果汁？ Benny：這是蘋果汁。","a":"type"},{"w":"theme","m":"主題","x":"The book’s theme is animals. Let’s read it.","t":"這本書的主題是動物。我們來讀它吧。","a":"theme"},{"w":"wait","m":"等待","x":"Please wait for me in the classroom.","t":"請在教室裡等我。","a":"wait"},{"w":"expensive","m":"昂貴的","x":"That cool car is very expensive.","t":"那輛很酷的車非常昂貴。","a":"expensive"},{"w":"with","m":"和；對…來說","x":"Chris: Is this room OK with you? Anna: Yes. It’s beautiful.","t":"Chris：這間房間對你來說可以嗎？ Anna：可以。它很美。","a":"with"},{"w":"question","m":"問題","x":"Sara: Where is my bag? It’s not here. Ian: Hmm... that’s a good question.","t":"Sara：我的包包在哪？它不在這。 Ian：嗯……這是個好問題。","a":"question"},{"w":"I see","m":"我了解了","x":"Lucy: That’s Mr. Lin, Sam’s teacher. Dave: Oh, I see.","t":"Lucy：那是林老師，Sam 的老師。 Dave：喔，我了解了。","a":"I see"},{"w":"soft","m":"柔軟的","x":"The bed is big and soft.","t":"這張床又大又柔軟。","a":"soft"},{"w":"hard","m":"硬的","x":"My grandpa’s bed is hard.","t":"我祖父的床很硬。","a":"hard"},{"w":"in fact","m":"事實上","x":"The woman isn’t Leo’s mother. In fact, she’s his grandmother.","t":"這個女人不是 Leo 的媽媽。事實上，她是他的祖母。","a":"In fact"},{"w":"around","m":"在…周圍；各地","x":"Mr. Green’s students are from around the world.","t":"Green 老師的學生們來自世界各地。","a":"around"},{"w":"world","m":"世界","x":"The book is about different animals around the world.","t":"這本書是關於全世界不同的動物。","a":"world"},{"w":"kitchen","m":"廚房","x":"Your kitchen is big and beautiful.","t":"你的廚房大又美。","a":"kitchen"},{"w":"beside","m":"在…旁邊","x":"The movie theater is beside the park.","t":"這間電影院在公園旁邊。","a":"beside"},{"w":"ice","m":"冰","x":"Dylan: In the picture, the girl’s bed is a big ice bed. Julia: Cool!","t":"Dylan：在這張照片裡面，這女孩的床是個大冰床。 Julia：酷！","a":"ice"},{"w":"inside","m":"在…裡面","x":"Silvia: What’s inside the box? Calvin: It’s my blanket.","t":"Silvia：盒子裡面是什麼？ Calvin：是我的毛毯。","a":"inside"},{"w":"blanket","m":"毛毯","x":"It’s cold. Where is my blanket?","t":"天氣好冷。我的毛毯在哪裡？","a":"blanket"}],"builtin":true},{"id":"G7L4","name":"第 4 課","grade":"7","words":[{"w":"listen","m":"聽","x":"Listen! In my eyes, you are beautiful.","t":"聽著！在我眼中，你是美麗的。","a":"Listen"},{"w":"voice","m":"聲音","x":"Taylor Swift’s voice is beautiful.","t":"Taylor Swift 的歌聲很美。","a":"voice"},{"w":"stand up","m":"站起來","x":"Please stand up, students.","t":"請站起來，同學們。","a":"stand up"},{"w":"sit down","m":"坐下","x":"Don’t sit down. A mouse is on the chair.","t":"不要坐下。有隻老鼠在椅子上。","a":"sit down"},{"w":"take a photo","m":"拍照","x":"Can you take a photo for me?","t":"你可以為我拍一張照片嗎？","a":"take a photo"},{"w":"make","m":"做；製作","x":"You can make a card with these tools.","t":"你可以用這些工具做一張卡片。","a":"make"},{"w":"any","m":"任何","x":"I can’t upload any photos.","t":"我無法上傳任何照片。","a":"any"},{"w":"noise","m":"噪音","x":"Listen! The noise is from the kitchen.","t":"聽！噪音是從廚房傳出來的。","a":"noise"},{"w":"can't","m":"不能；不會","x":"I can’t dance, but my sister can.","t":"我不會跳舞，但我姐姐會。","a":"can’t"},{"w":"talk","m":"說話","x":"Don’t talk on your cellphone now.","t":"現在不要講手機。","a":"talk"},{"w":"noisy","m":"吵鬧的","x":"Let’s not sit here. The students are noisy.","t":"我們不要坐在這裡吧。那些學生好吵。","a":"noisy"},{"w":"late","m":"晚的；遲到的","x":"It’s late. Let’s go home.","t":"時間很晚了。我們回家吧。","a":"late"},{"w":"early","m":"早的","x":"Hey, you’re early! It’s only four now.","t":"嗨，你早到了！現在才四點。","a":"early"},{"w":"sidewalk","m":"人行道","x":"Don’t play on the sidewalk.","t":"別在人行道上玩耍。","a":"sidewalk"},{"w":"song","m":"歌曲","x":"The song is great. I can listen to it again and again.","t":"這首歌很棒。我可以聽一遍又一遍。","a":"song"},{"w":"check out","m":"查看；看看","x":"Come and check out my new house.","t":"來看看我的新房子吧。","a":"check out"},{"w":"cross","m":"穿越","x":"Cross the road, and you can see the new theater.","t":"跨越這條路，你就可以看到新的電影院。","a":"Cross"},{"w":"road","m":"道路","x":"This is the road to Lena’s house.","t":"這是通往 Lena 家的路。","a":"road"},{"w":"watch out","m":"小心","x":"Watch out. A snake is beside your car.","t":"小心。一條蛇在你的車旁邊。","a":"Watch out"},{"w":"real","m":"真實的","x":"It’s not Becky’s real voice. Her voice is soft.","t":"這不是 Becky 的真實聲音。她的聲音很輕。","a":"real"},{"w":"all the time","m":"一直","x":"Sam is noisy all the time.","t":"Sam 一直都很吵。","a":"all the time"},{"w":"guess what","m":"你猜怎麼著","x":"Guess what? We can go to the USA.","t":"你猜怎麼著？我們可以去美國。","a":"Guess what"},{"w":"traffic light","m":"紅綠燈","x":"You can wait for me at the traffic lights.","t":"你可以在紅綠燈處等我。","a":"traffic lights"},{"w":"ground","m":"地面","x":"Tim: What is it on the ground? Jay: It’s my sister’s toy robot.","t":"Tim：地面上的東西是什麼？ Jay：它是我妹妹的玩具機器人。","a":"ground"},{"w":"design","m":"設計","x":"We can see some smart designs in this house.","t":"我們可以在這棟房子裡看到一些巧妙的設計。","a":"designs"},{"w":"user","m":"使用者","x":"Be a good road user.","t":"做個優良的道路使用者。","a":"user"},{"w":"download","m":"下載","x":"How can I download the game?","t":"我要如何下載這個遊戲？","a":"download"},{"w":"warn","m":"警告","x":"This app can warn users about the oncoming cars.","t":"這個應用程式可以警告用戶即將到來的汽車。","a":"warn"},{"w":"oncoming","m":"迎面而來的","x":"Watch out for the oncoming cars!","t":"小心迎面駛來的車輛！","a":"oncoming"},{"w":"crosswalk","m":"斑馬線","x":"Don’t look down at your phone at crosswalks.","t":"不要在斑馬線上低頭看手機。","a":"crosswalks"},{"w":"also","m":"也","x":"Fred is good at math. He is also good at PE.","t":"Fred 擅長數學。他也擅長體育。","a":"also"},{"w":"the USA","m":"美國","x":"The new student, Rebecca, is from the USA.","t":"這名新學生 Rebecca 來自美國。","a":"the USA"},{"w":"special","m":"特別的","x":"The picture book is special. My daughter can read it again and again.","t":"這本圖畫書很特別。我女兒可以一遍又一遍地讀它。","a":"special"},{"w":"lane","m":"小巷","x":"The lane is beautiful and quiet.","t":"這條小巷美麗又安靜。","a":"lane"},{"w":"way","m":"方法；道路","x":"This is not the right way to download the app.","t":"這不是下載這個應用程式的正確方法。","a":"way"},{"w":"other","m":"其他的","x":"Maybe you can get other ideas from the movie.","t":"也許你能從電影中得到其他的想法。","a":"other"}],"builtin":true},{"id":"G7L5","name":"第 5 課","grade":"7","words":[{"w":"week","m":"星期；週","x":"The meeting with Mr. Green is next week.","t":"和 Green 先生的會議是下星期。","a":"week"},{"w":"Monday","m":"星期一","x":"Kim: Goodbye! See you next Monday. Roy: Bye.","t":"Kim：再見！下星期一見。 Roy：再見。","a":"Monday"},{"w":"Tuesday","m":"星期二","x":"My birthday is on Tuesday.","t":"我的生日在星期二。","a":"Tuesday"},{"w":"Wednesday","m":"星期三","x":"Let’s go to the movies on Wednesday.","t":"我們星期三一起去看電影吧。","a":"Wednesday"},{"w":"basketball","m":"籃球","x":"My sisters are playing basketball in the park.","t":"我的妹妹們正在公園裡打籃球。","a":"basketball"},{"w":"Thursday","m":"星期四","x":"The basketball game is on Thursday night.","t":"籃球賽在星期四晚上。","a":"Thursday"},{"w":"Friday","m":"星期五","x":"Their PE classes are on Tuesdays and Fridays.","t":"他們的體育課在每個星期二和星期五。","a":"Fridays"},{"w":"Saturday","m":"星期六","x":"Let’s watch movies at home on Saturday night.","t":"我們星期六晚上一起在家看電影吧。","a":"Saturday"},{"w":"birthday","m":"生日","x":"Hank: Happy birthday! This smartphone is for you. Irene: Thank you.","t":"Hank：生日快樂！這支智慧型手機是給你的。 Irene：謝謝。","a":"birthday"},{"w":"party","m":"派對","x":"Welcome to my birthday party, Jack.","t":"歡迎來到我的生日派對，Jack。","a":"party"},{"w":"Sunday","m":"星期日","x":"Mother’s Day is this Sunday.","t":"母親節是這星期日。","a":"Sunday"},{"w":"day","m":"日子；天","x":"Jason: What day is today? Helen: It’s Wednesday.","t":"Jason：今天是星期幾？ Helen：今天是星期三。","a":"day"},{"w":"weekend","m":"週末","x":"Let’s go to the zoo next weekend.","t":"我們下週末一起去動物園吧。","a":"weekend"},{"w":"noon","m":"中午","x":"It’s noon. Time for lunch.","t":"中午了。午餐時間到了。","a":"noon"},{"w":"wake up","m":"醒來","x":"Wake up. You’re late for school.","t":"醒來。你上學遲到了。","a":"Wake up"},{"w":"look for","m":"尋找","x":"Kevin: What is Jessica looking for? Polly: Her cellphone.","t":"Kevin：Jessica 正在尋找什麼？ Polly：她的手機。","a":"looking for"},{"w":"hurry up","m":"快一點","x":"Hurry up. Everyone is waiting for you.","t":"快一點。每個人都在等你。","a":"Hurry up"},{"w":"by the way","m":"順帶一提","x":"Your hat is so cool. Oh, by the way, my name is Ivy.","t":"你的帽子是如此酷。喔，順帶一提，我的名字是 Ivy。","a":"by the way"},{"w":"join","m":"參加；加入","x":"Can I join the group chat at school tonight?","t":"我今晚可以參加學校的團體談話嗎？","a":"join"},{"w":"group","m":"團體；群組","x":"Victor: Who is that boy group? Shirley: BTS.","t":"Victor：那個男孩團體是誰？ Shirley：防彈少年團。","a":"group"},{"w":"chat","m":"談話；聊天","x":"The group chat is at 7:30 p.m. in the classroom.","t":"團體談話是晚上七點三十分在教室。","a":"chat"},{"w":"tonight","m":"今晚","x":"Let’s have dinner with Kevin tonight.","t":"我們今晚跟 Kevin 吃晚餐吧。","a":"tonight"},{"w":"meeting","m":"會議","x":"The meeting is at two o’clock. Don’t be late.","t":"這場會議在兩點鐘。不要遲到。","a":"meeting"},{"w":"p.m.","m":"下午；晚上","x":"Sally: What time is it in your city? Joseph: It’s 7 p.m.","t":"Sally：你居住的城市現在是幾點？ Joseph：晚上七點。","a":"p.m."},{"w":"life","m":"生活；生命","x":"Ella is talking about her school life in the USA.","t":"Ella 正在說關於她在美國的學校生活。","a":"life"},{"w":"prepare","m":"準備","x":"Jessie: What is David doing in the room? Brian: He’s preparing for the meeting on Thursday.","t":"Jessie：David 正在房間裡做什麼？ Brian：他正在準備星期四的會議。","a":"preparing"},{"w":"o'clock","m":"…點鐘","x":"Liz: What time is the math class? Meg: It’s at 8 o’clock.","t":"Liz：數學課是幾點？ Meg：在八點鐘。","a":"o’clock"},{"w":"everyone","m":"每個人（= everybody）","x":"Where are you? Everyone is waiting for you.","t":"你在哪裡？每個人都在等你。","a":"Everyone"},{"w":"a.m.","m":"上午","x":"It’s 6 a.m. Grandma is dancing in the park.","t":"現在是上午六點。奶奶正在公園跳舞。","a":"a.m."},{"w":"city","m":"城市","x":"My parents are in New York City now.","t":"我的父母現在在紐約市。","a":"City"},{"w":"say","m":"說","x":"Today is Teachers’ Day. Let’s say thank you to our teachers.","t":"今天是教師節。我們一起向我們的老師們說聲謝謝吧。","a":"say"},{"w":"sun","m":"太陽","x":"It’s so hot. Don’t sit in the sun.","t":"天氣如此熱。不要坐在太陽下。","a":"sun"},{"w":"rise","m":"起床；升起","x":"Wake up, Ruby! Rise and shine!","t":"醒來，Ruby！快起床！","a":"Rise"},{"w":"shine","m":"照耀","x":"Look! The sun is shining.","t":"看！太陽正在照耀著。","a":"shining"},{"w":"dinner","m":"晚餐","x":"It’s 5:30 p.m. Dad is preparing dinner for us in the kitchen.","t":"現在是下午五點半。爸爸正在廚房裡為我們準備晚餐。","a":"dinner"}],"builtin":true},{"id":"G7L6","name":"第 6 課","grade":"7","words":[{"w":"gate","m":"大門","x":"There is a red car in front of the school gate.","t":"有一臺紅色的車在學校大門前面。","a":"gate"},{"w":"sports field","m":"運動場","x":"There aren’t any students on the sports field.","t":"運動場上沒有任何學生。","a":"sports field"},{"w":"basketball court","m":"籃球場","x":"There are two basketball courts in our school.","t":"我們學校有兩個籃球場。","a":"basketball courts"},{"w":"restroom","m":"廁所；洗手間","x":"There are two restrooms in the gym.","t":"體育館裡面有兩間廁所。","a":"restrooms"},{"w":"library","m":"圖書館","x":"Dad: Where are your sisters? Are they sleeping? Liz: No, they are reading in the library.","t":"Dad：你的妹妹們在哪裡？他們在睡覺嗎？ Liz：不，他們在圖書館裡讀書。","a":"library"},{"w":"playground","m":"遊樂場；操場","x":"My children are playing in the playground.","t":"我的孩子們正在遊樂場玩耍。","a":"playground"},{"w":"swing","m":"秋千","x":"The swing is too big for a three-year-old boy.","t":"這個秋千對於三歲男孩而言太大了。","a":"swing"},{"w":"slide","m":"溜滑梯","x":"There’s a big slide in the playground.","t":"遊樂場有一個大滑梯。","a":"slide"},{"w":"garden","m":"花園","x":"There’s a garden behind Brian’s house.","t":"Brian 的房子後面有一個花園。","a":"garden"},{"w":"seesaw","m":"蹺蹺板","x":"Kyle: Who are the girls on the seesaw? Erin: They’re Gina and Patty.","t":"Kyle：蹺蹺板上面的女孩們是誰？ Erin：她們是 Gina 和 Patty。","a":"seesaw"},{"w":"basket","m":"籃子","x":"Olivia: What is there in the basket? Samuel: Bananas and oranges.","t":"Olivia：籃子裡面有什麼？ Samuel：香蕉和柳橙。","a":"basket"},{"w":"rest","m":"休息","x":"Go home and have some rest.","t":"回家休息一下吧。","a":"rest"},{"w":"show around","m":"帶…參觀","x":"Mr. Green is showing the new student around the school.","t":"Green 老師正帶著這位新學生參觀學校。","a":"showing around"},{"w":"building","m":"建築物","x":"There are a lot of tall buildings in the city.","t":"那個城市裡有許多高大的建築物。","a":"buildings"},{"w":"gym","m":"體育館","x":"Jeff and his classmates are playing basketball in the gym.","t":"Jeff 和他的同學們正在體育館裡打籃球。","a":"gym"},{"w":"work out","m":"鍛鍊身體","x":"We can work out in the gym after school.","t":"我們放學後可以在體育館裡鍛鍊身體。","a":"work out"},{"w":"after school","m":"放學後","x":"Let’s go to the movies after school.","t":"我們放學後去看電影吧。","a":"after school"},{"w":"large","m":"大的","x":"Our school library is large and beautiful.","t":"我們的學校圖書館又大又美。","a":"large"},{"w":"classmate","m":"同班同學","x":"Joe is my classmate. We are in Class 705.","t":"Joe 是我的同班同學。我們在 705 班。","a":"classmate"},{"w":"put","m":"放","x":"You can put your shoes outside the door.","t":"你可以把你的鞋子放在門外。","a":"put"},{"w":"shelf","m":"架子","x":"Can you get the red book on the shelf for me?","t":"你可以幫我拿架子上那本紅色的書嗎？","a":"shelf"},{"w":"outside","m":"在…外面","x":"Where are you, Lily? I’m waiting for you outside the library.","t":"Lily，你在哪裡？我正在圖書館外面等你。","a":"outside"},{"w":"worry","m":"擔心","x":"I’m fine. Don’t worry about me.","t":"我很好。別擔心我。","a":"worry"},{"w":"wear","m":"穿；戴","x":"We can’t wear T-shirts to school.","t":"我們不能穿 T 恤到學校。","a":"wear"},{"w":"still","m":"仍然","x":"It’s late, but Jimmy is still watching TV.","t":"很晚了，但 Jimmy 仍然在看電視。","a":"still"},{"w":"find","m":"找到","x":"Sean: Where is the restroom? I can’t find it. Nora: There’s one in the library.","t":"Sean：廁所在哪裡？我找不到。 Nora：圖書館裡有一間。","a":"find"},{"w":"foot","m":"腳（複數 feet）","x":"My feet are cold. Can I close the door?","t":"我的腳好冷。我可以關門嗎？","a":"feet"},{"w":"hungry","m":"飢餓的","x":"I’m hungry, Dad. Can I eat the bananas on the table?","t":"爸爸，我好餓。我可以吃桌上的香蕉嗎？","a":"hungry"},{"w":"sandwich","m":"三明治","x":"Tim: Can I have sandwiches for lunch? Dad: Yes, you can.","t":"Tim：我可以吃三明治當午餐嗎？ Dad：是的，你可以。","a":"sandwiches"},{"w":"find one's feet","m":"適應新環境","x":"Alex is a new student in my class. He is still finding his feet.","t":"Alex 是我班上的新學生。他仍然在適應新環境。","a":"finding his feet"},{"w":"meaning","m":"意思","x":"What is the meaning of the sign?","t":"這個符號的意思是什麼？","a":"meaning"},{"w":"think","m":"想；思考","x":"What are you thinking?","t":"你在想什麼？","a":"thinking"},{"w":"a lot of","m":"許多","x":"There are a lot of students on the bus.","t":"公車上面有許多學生。","a":"a lot of"},{"w":"thing","m":"事情；東西","x":"My father can do a lot of things.","t":"我爸爸會做許多事情。","a":"things"},{"w":"however","m":"然而","x":"It’s time for dinner. However, I’m not hungry.","t":"晚餐時間到了。然而，我不餓。","a":"However"},{"w":"friendly","m":"友善的","x":"Mr. Jones is friendly to everyone.","t":"Jones 先生對每個人都很友善。","a":"friendly"}],"builtin":true}];
+/* 課本單字：康軒國中英語 九上 L1–L6 單字例句小考卷 */
+const LESSONS9=[{"id":"G9L1","name":"第 1 課","grade":"9","words":[{"w":"subject","m":"學科；科目","x":"Nina’s favorite subjects are science and history.","t":"Nina 最喜愛的學科是科學與歷史。","a":"subjects"},{"w":"history","m":"歷史","x":"The beautiful temple has a long history.","t":"這座美麗的寺廟有悠久的歷史。","a":"history"},{"w":"topic","m":"主題","x":"I can’t think of another topic for my report.","t":"我想不出其他的報告主題。","a":"topic"},{"w":"hairdryer","m":"吹風機","x":"After Jean washes her hair, she uses the hairdryer to dry her hair.","t":"Jean 洗完頭後用吹風機吹乾頭髮。","a":"hairdryer"},{"w":"yet","m":"還（沒）；尚未","x":"I can’t go to the movies because I haven’t finished my report yet.","t":"我無法去看電影，因為我還沒完成我的報告。","a":"yet"},{"w":"century","m":"世紀","x":"We live in the 21st century.","t":"我們生活在二十一世紀。","a":"century"},{"w":"freeze","m":"結冰","x":"The lakes here freeze in winter.","t":"這邊的湖泊在冬天會結冰。","a":"freeze"},{"w":"potato","m":"馬鈴薯","x":"Tina made potato salad for dinner tonight.","t":"Tina 今天晚上做了馬鈴薯沙拉當晚餐。","a":"potato"},{"w":"stick","m":"枝條；棍子","x":"Let’s find some dry sticks to make a fire.","t":"我們找一些乾的枝條生火吧。","a":"sticks"},{"w":"American","m":"美國的；美國人","x":"Stephen Curry is an American basketball player.","t":"Stephen Curry 是美國的籃球員。","a":"American"},{"w":"soldier","m":"軍人；士兵","x":"John wanted to be a soldier, but he became a teacher in the end.","t":"John 想要當軍人，但是他最後成為了一名教師。","a":"soldier"},{"w":"main","m":"主要的","x":"We don’t have enough money. That’s our main problem.","t":"我們沒有足夠的錢。那是我們主要的問題。","a":"main"},{"w":"language","m":"語言","x":"I’m not good at learning languages.","t":"我不擅長學習語言。","a":"languages"},{"w":"since","m":"自從","x":"Nick hasn’t played baseball since he hurt his legs.","t":"Nick 自雙腿受傷以來還沒打過棒球。","a":"since"},{"w":"celebrate","m":"慶祝","x":"We are going out for a meal to celebrate my birthday.","t":"我們將外出用餐慶祝我的生日。","a":"celebrate"},{"w":"national","m":"國家的；全國的","x":"Let’s take a look at the national news.","t":"我們來看一下國內新聞吧。","a":"national"},{"w":"thick","m":"粗的；厚的","x":"The sticks are too thick. I can’t break them.","t":"這些枝條太粗了。我無法弄斷它們。","a":"thick"},{"w":"fry","m":"油煎；油炸","x":"Sam fried two eggs for breakfast this morning.","t":"Sam 今天早上煎了兩顆蛋當早餐。","a":"fried"},{"w":"chocolate","m":"巧克力","x":"My father brought a chocolate cake home last night.","t":"我父親昨天晚上帶了一個巧克力蛋糕回家。","a":"chocolate"},{"w":"bunny","m":"小兔子","x":"Do you know the story of the Easter bunny?","t":"你知道復活節小兔子的故事嗎？","a":"bunny"},{"w":"candy","m":"糖果","x":"Emma bought me a box of candies from Japan.","t":"Emma 從日本買了一盒糖果給我。","a":"candies"},{"w":"pumpkin","m":"南瓜","x":"We always eat pumpkin pies on Thanksgiving.","t":"我們總是在感恩節吃南瓜派。","a":"pumpkin"},{"w":"bake","m":"烘烤","x":"Jenny baked the cake for 45 minutes.","t":"Jenny 烘烤了這個蛋糕四十五分鐘。","a":"baked"},{"w":"Christmas Eve","m":"聖誕夜；平安夜","x":"What are we going to eat on Christmas Eve?","t":"我們平安夜將要吃什麼？","a":"Christmas Eve"},{"w":"nobody","m":"沒有人","x":"Nobody agreed with Leo.","t":"沒有人贊同 Leo。","a":"Nobody"},{"w":"wave","m":"揮手","x":"Alex waved at us and said goodbye.","t":"Alex 對我們揮手說再見。","a":"waved"},{"w":"inch","m":"英寸","x":"The snow was 5 inches deep in this area.","t":"這個地區的雪有五英寸深。","a":"inches"},{"w":"king","m":"國王","x":"The king owns a lot of land.","t":"這位國王擁有許多土地。","a":"king"}],"builtin":true},{"id":"G9L2","name":"第 2 課","grade":"9","words":[{"w":"delivery","m":"運送；遞送","x":"Delivery is free for orders of NT$500 or over.","t":"訂單達新臺幣五百元（含）以上免運費。","a":"Delivery"},{"w":"among","m":"在…之中","x":"Jake is the tallest among those boys.","t":"Jake 是那些男孩中最高的。","a":"among"},{"w":"age","m":"年齡","x":"The soldier died at the age of 25.","t":"那位士兵在二十五歲時死亡。","a":"age"},{"w":"chart","m":"圖表","x":"Look at the weather chart. It will be sunny tomorrow.","t":"看看這張天氣圖。明天將會是晴天。","a":"chart"},{"w":"page","m":"頁","x":"Please turn to page 5.","t":"請翻到第五頁。","a":"page"},{"w":"interested","m":"感興趣的","x":"Ben is interested in the history of the USA.","t":"Ben 對美國的歷史感興趣。","a":"interested"},{"w":"reason","m":"原因；理由","x":"Sara went home early from school, but she didn’t tell me the reason.","t":"Sara 提早離開學校回家，但是她沒有告訴我原因。","a":"reason"},{"w":"helpful","m":"有幫助的","x":"If you can’t sleep at night, having some warm milk might be helpful.","t":"如果你晚上睡不著，喝些溫牛奶可能有用。","a":"helpful"},{"w":"tired","m":"疲累的","x":"Dave was tired after a long day at the office.","t":"Dave 在辦公室漫長的一天後很疲勞。","a":"tired"},{"w":"offer","m":"提供","x":"I would like to offer help if you need it.","t":"如果你需要的話，我很樂意提供協助。","a":"offer"},{"w":"discount","m":"折扣","x":"Students in Taipei get a discount when they take the bus.","t":"臺北的學生搭公車時享有折扣。","a":"discount"},{"w":"driver","m":"駕駛；司機","x":"David is a good driver. He drives carefully.","t":"David 是名優良駕駛。他開車很小心。","a":"driver"},{"w":"uniform","m":"制服","x":"Most students in Taiwan have to wear uniforms to school.","t":"臺灣大部分的學生必須穿制服上學。","a":"uniforms"},{"w":"excited","m":"感到興奮的","x":"Amy is very excited about the robot show.","t":"Amy 對機器人展感到非常興奮。","a":"excited"},{"w":"boring","m":"無聊的（令人感到）","x":"The movie wasn’t interesting. It was boring.","t":"這部電影不有趣。它很無聊。","a":"boring"},{"w":"bored","m":"感到無聊的","x":"Mr. Wilson was bored with his life in a small town.","t":"Wilson 先生對他在小鎮的生活感到厭煩。","a":"bored"},{"w":"tiring","m":"令人疲累的","x":"Taking care of children is tiring to Jamie.","t":"照顧小孩對 Jamie 來說很累人。","a":"tiring"},{"w":"surprising","m":"令人驚訝的","x":"It is surprising that they want to sell the house.","t":"他們想要賣掉這間房子很令人驚訝。","a":"surprising"},{"w":"surprised","m":"感到驚訝的","x":"We were surprised at his idea of starting a new shop.","t":"我們對於他想開間新店鋪的想法感到驚訝。","a":"surprised"},{"w":"tip","m":"給小費","x":"Tim tipped the waitress three dollars.","t":"Tim 給了這名女服務生三美元的小費。","a":"tipped"},{"w":"couch","m":"長沙發","x":"The couch is so comfortable. I can sit on it all day.","t":"這張沙發很舒服。我可以坐在上面一整天。","a":"couch"},{"w":"interest","m":"興趣","x":"Larry has shown an interest in music since he was five.","t":"Larry 從五歲開始就表現出對音樂的興趣。","a":"interest"},{"w":"mind","m":"介意","x":"Would you mind waiting outside?","t":"你介意在外面等嗎？","a":"mind"},{"w":"chance","m":"機會","x":"Is there any chance of getting the movie tickets?","t":"有任何機會可以拿到電影票嗎？","a":"chance"},{"w":"list","m":"清單","x":"Jane forgot to bring her shopping list with her.","t":"Jane 忘了帶她的購物清單。","a":"list"},{"w":"at least","m":"至少","x":"It will take you at least 30 minutes to get to the museum.","t":"到博物館至少會花你三十分鐘。","a":"at least"},{"w":"location","m":"位置；地點","x":"The office building is in a good location.","t":"這棟辦公大樓的位置很好。","a":"location"},{"w":"tap","m":"輕拍；輕觸","x":"I tapped him on the head, and he turned around.","t":"我輕觸他的頭，然後他轉過身來。","a":"tapped"},{"w":"button","m":"按鈕；鈕扣","x":"Push the button and turn on the light.","t":"按下按鈕開燈。","a":"button"}],"builtin":true},{"id":"G9L3","name":"第 3 課","grade":"9","words":[{"w":"form","m":"形成；排成","x":"The students formed a line behind their teacher.","t":"學生們在他們的老師後面排成一列。","a":"formed"},{"w":"childhood","m":"童年","x":"I had a happy childhood.","t":"我有一個快樂的童年。","a":"childhood"},{"w":"relative","m":"親戚","x":"People in Taiwan usually visit their relatives during Chinese New Year.","t":"臺灣人通常在農曆新年期間拜訪他們的親戚。","a":"relatives"},{"w":"expect","m":"預期；預計","x":"I didn’t expect to see Mr. Simpson in the meeting.","t":"我沒有預計會在會議上看到 Simpson 先生。","a":"expect"},{"w":"public","m":"公共的","x":"The public library isn’t open on Mondays.","t":"那間公共圖書館週一沒有開放。","a":"public"},{"w":"such as","m":"像是；例如","x":"I like outdoor sports, such as soccer and baseball.","t":"我喜歡戶外運動，像是足球和棒球。","a":"such as"},{"w":"everywhere","m":"到處","x":"I looked everywhere for my cellphone.","t":"我到處尋找我的手機。","a":"everywhere"},{"w":"company","m":"公司","x":"Mr. Jones joined our company last month.","t":"Jones 先生上個月加入我們的公司。","a":"company"},{"w":"equal","m":"平等的；相等的","x":"All people are equal.","t":"所有人都是平等的。","a":"equal"},{"w":"hard-working","m":"勤勉的；努力的","x":"Kathy studies a lot. She is a hard-working student.","t":"Kathy 很用功讀書。她是一個勤勉的學生。","a":"hard-working"},{"w":"lawyer","m":"律師","x":"He didn’t answer any questions until his lawyer came.","t":"直到他的律師來之前，他沒有回答任何問題。","a":"lawyer"},{"w":"engineer","m":"工程師","x":"My aunt is an engineer. She can fix computers.","t":"我阿姨是工程師。她會修理電腦。","a":"engineer"},{"w":"president","m":"總統；總裁","x":"Who is the president of the USA?","t":"誰是美國總統？","a":"president"},{"w":"model","m":"模範；模特兒","x":"Lady Gaga is a role model for many teenagers.","t":"Lady Gaga 對許多青少年而言是行為榜樣。","a":"model"},{"w":"picture","m":"想像；圖片","x":"I can’t picture David as a police officer.","t":"我無法想像 David 當警察的樣子。","a":"picture"},{"w":"lovely","m":"可愛的；漂亮的","x":"Jennifer looks lovely in that dress.","t":"Jennifer 穿那件洋裝看起來很漂亮。","a":"lovely"},{"w":"born","m":"出生","x":"Peter was born on June 12, 2005.","t":"Peter 出生於 2005 年 6 月 12 日。","a":"born"},{"w":"present","m":"禮物","x":"Julia got a lot of presents on her birthday.","t":"Julia 在她生日當天得到許多禮物。","a":"presents"},{"w":"pretty","m":"漂亮的（比較級 prettier）","x":"Zoe looks much prettier when she smiles.","t":"Zoe 微笑時看起來更漂亮。","a":"prettier"},{"w":"brave","m":"勇敢的","x":"It was brave of you to save the boy.","t":"你救了那個男孩，真是勇敢。","a":"brave"},{"w":"be filled with","m":"充滿","x":"The streets are filled with cars and people.","t":"街道上充滿了汽車及人。","a":"are filled with"},{"w":"stupid","m":"愚蠢的","x":"It is stupid and dangerous to run a red light.","t":"闖紅燈既愚蠢又危險。","a":"stupid"},{"w":"honest","m":"誠實的","x":"Larry is an honest and hard-working student.","t":"Larry 是個既誠實又勤勉的學生。","a":"honest"},{"w":"spider","m":"蜘蛛","x":"Allan is afraid of spiders. He thinks they are scary.","t":"Allan 害怕蜘蛛。他覺得牠們很可怕。","a":"spiders"},{"w":"comic","m":"漫畫的","x":"Kelly has collected over five hundred comic books since she was ten.","t":"Kelly 從十歲起已經收集了超過五百本漫畫書。","a":"comic"},{"w":"mad","m":"生氣的；瘋狂的","x":"Mr. Jones was mad at me because I didn’t do my homework.","t":"Jones 老師對我感到很惱火，因為我沒有做作業。","a":"mad"},{"w":"totally","m":"完全地","x":"I totally agree with you.","t":"我完全同意你。","a":"totally"},{"w":"understand","m":"了解；理解","x":"Sandra explained her idea again, but I still didn’t understand.","t":"Sandra 再次解釋她的想法，但我仍然不了解。","a":"understand"},{"w":"hope","m":"希望","x":"I hope our team will win the basketball game.","t":"我希望我們的隊伍將會贏得這場籃球比賽。","a":"hope"},{"w":"allow","m":"允許","x":"Kids under 6 are not allowed in this restaurant.","t":"六歲以下的孩童不被允許進入這間餐廳。","a":"allowed"},{"w":"laugh at","m":"嘲笑","x":"Stop laughing at your brother, Lily.","t":"Lily，停止嘲笑你的弟弟。","a":"laughing at"}],"builtin":true},{"id":"G9L4","name":"第 4 課","grade":"9","words":[{"w":"create","m":"創造","x":"The new factory created at least 100 new jobs.","t":"這間新工廠創造了至少一百個新的就業機會。","a":"created"},{"w":"dictionary","m":"字典","x":"If you want to know the meaning of a word, you can look it up in the dictionary.","t":"如果你想知道一個字的意思，你可以查閱字典。","a":"dictionary"},{"w":"case","m":"情況；例子","x":"In my case, when I started teaching English, I enjoyed it right away.","t":"以我為例，當我開始教英文時，我立刻就愛上它了。","a":"case"},{"w":"combine","m":"結合","x":"This book combines history with art in a special way.","t":"這本書以特殊的方式將歷史與藝術結合。","a":"combines"},{"w":"pleasure","m":"榮幸；樂趣","x":"A: Thanks for your help. B: It was my pleasure.","t":"A：謝謝你的幫忙。 B：不客氣。","a":"pleasure"},{"w":"notebook computer","m":"筆記型電腦","x":"The notebook computer is light and easy to carry around.","t":"這臺筆記型電腦既輕巧又便於攜帶。","a":"notebook computer"},{"w":"e-mail","m":"電子郵件","x":"Ms. White sent her secretary an e-mail this morning.","t":"White 女士今天早上寄了一封電子郵件給她的祕書。","a":"e-mail"},{"w":"by accident","m":"意外地；偶然地","x":"The fire started by accident last night.","t":"昨晚意外地發生了火災。","a":"by accident"},{"w":"lip","m":"嘴唇","x":"The boy has big eyes and full lips.","t":"這個男孩有雙大眼睛及豐厚的嘴唇。","a":"lips"},{"w":"whether","m":"是否","x":"Ask Peter whether he can come or not.","t":"問 Peter 他是否能過來。","a":"whether"},{"w":"define","m":"定義","x":"It’s hard for me to define the word “love.”","t":"定義「愛」這個字對我來說很困難。","a":"define"},{"w":"idiom","m":"慣用語；成語","x":"Ann: What does the idiom “let the cat out of the bag” mean? Ben: It means “To tell a secret by mistake.”","t":"Ann：這句慣用語「let the cat out of the bag」是什麼意思？ Ben：它指「無意中洩密」。","a":"idiom"},{"w":"butterfly","m":"蝴蝶","x":"There is a big butterfly flying around the flowers.","t":"有隻大蝴蝶繞著這些花飛舞。","a":"butterfly"},{"w":"interview","m":"面試；訪問","x":"Bill has an interview for a teaching job next week.","t":"Bill 下星期有個教職的面試。","a":"interview"},{"w":"hen","m":"母雞","x":"My grandpa keeps three hens in back of his house.","t":"我祖父在他的房子後面養了三隻母雞。","a":"hens"},{"w":"salesman","m":"銷售員","x":"The salesman is trying to sell the car to me.","t":"這名銷售員正嘗試賣這輛車給我。","a":"salesman"},{"w":"blind","m":"失明的","x":"Judy is blind in her left eye.","t":"Judy 的左眼失明。","a":"blind"},{"w":"bat","m":"蝙蝠","x":"Bats fly and feed at night.","t":"蝙蝠在晚上飛行及覓食。","a":"Bats"},{"w":"glasses","m":"眼鏡","x":"Daisy can’t see the words clearly without her glasses.","t":"Daisy 沒戴眼鏡就無法看清楚這些字。","a":"glasses"},{"w":"bee","m":"蜜蜂","x":"I saw some bees sitting on the flowers in the garden this morning.","t":"我今天早上在花園裡看見一些蜜蜂停在花朵上。","a":"bees"},{"w":"dead","m":"死的","x":"Nancy is sad because her pet is dead.","t":"Nancy 很難過，因為她的寵物死了。","a":"dead"},{"w":"lie","m":"說謊","x":"Oliver’s parents were mad at him because he lied to them again.","t":"Oliver 的父母生他的氣，因為他又對他們說謊了。","a":"lied"},{"w":"farm","m":"農場","x":"My uncle used to work on a farm.","t":"我叔叔過去曾經在農場工作。","a":"farm"},{"w":"trouble","m":"麻煩","x":"If I don’t get this done before I get off work today, I’ll be in trouble.","t":"如果我在今天下班前沒有完成的話，我就會有麻煩了。","a":"trouble"},{"w":"pain","m":"疼痛","x":"The pain in my legs is getting worse.","t":"我的腿越來越痛了。","a":"pain"},{"w":"pray","m":"祈禱","x":"Mike is praying for his parents’ health in the church.","t":"Mike 正在教堂裡祈求他父母的健康。","a":"praying"}],"builtin":true},{"id":"G9L5","name":"第 5 課","grade":"9","words":[{"w":"foreign","m":"外國的","x":"Bryan can speak five foreign languages.","t":"Bryan 會說五種外國語言。","a":"foreign"},{"w":"lollipop","m":"棒棒糖","x":"My brother was happy when I gave him a lollipop.","t":"當我給我弟弟一根棒棒糖時，他很高興。","a":"lollipop"},{"w":"pink","m":"粉紅色（的）","x":"I wore a pink T-shirt to school yesterday.","t":"我昨天穿了一件粉紅色的 T 恤去學校。","a":"pink"},{"w":"purple","m":"紫色（的）","x":"She was dressed in purple.","t":"她身穿紫色衣服。","a":"purple"},{"w":"natural","m":"天然的；自然的","x":"This is not Jennie’s natural hair color.","t":"這不是 Jennie 天然的髮色。","a":"natural"},{"w":"center","m":"中心；中央","x":"There is a big sofa in the center of the living room.","t":"有一張大沙發在客廳的中央。","a":"center"},{"w":"boss","m":"老闆","x":"Daniel has to ask his boss for a day off.","t":"Daniel 必須向他的老闆請假一天。","a":"boss"},{"w":"married","m":"已婚的","x":"Helen and Paul have been married for three years.","t":"Helen 和 Paul 已經結婚三年了。","a":"married"},{"w":"sound","m":"聽起來","x":"A man with a foreign-sounding voice answered the phone.","t":"一個聽起來有外國口音的男人接起了電話。","a":"sounding"},{"w":"have a sweet tooth","m":"愛吃甜食","x":"Nisha has a sweet tooth. She loves eating sweets and chocolate.","t":"Nisha 愛吃甜食。她喜歡吃甜點和巧克力。","a":"has a sweet tooth"},{"w":"rise","m":"上升；增加","x":"There was a big rise in the number of COVID-19 cases last week.","t":"上週感染 COVID-19 的確診者人數大幅升高。","a":"rise"},{"w":"success","m":"成功","x":"Everyone agreed that the movie was a big success.","t":"每個人都同意這部電影大獲成功。","a":"success"},{"w":"mark","m":"名聲；記號","x":"She made her mark as an actress.","t":"她作為演員而成名。","a":"mark"},{"w":"belong to","m":"屬於","x":"The package is not mine. It belongs to Eddie.","t":"這個包裹不是我的。它屬於 Eddie。","a":"belongs to"},{"w":"grown-up","m":"成年人；大人","x":"The boy got lost, so he asked a grown-up for help.","t":"那男孩迷路了，所以他向一個大人求助。","a":"grown-up"},{"w":"leader","m":"領袖；領導者","x":"Peter was chosen as the class leader this year.","t":"Peter 今年被選為班長。","a":"leader"},{"w":"simple","m":"簡單的","x":"The rules of the game are quite simple.","t":"這個遊戲規則很簡單。","a":"simple"},{"w":"repeat","m":"重複","x":"Could you repeat your question, please?","t":"可以請你重複你的問題嗎？","a":"repeat"},{"w":"dentist","m":"牙醫","x":"I’m going to the dentist tomorrow morning.","t":"明天早上我將去看牙醫。","a":"dentist"},{"w":"knowledge","m":"知識","x":"Iris doesn’t have much knowledge of American history.","t":"Iris 沒有很多關於美國歷史的知識。","a":"knowledge"},{"w":"fail","m":"失敗；未能","x":"The doctor failed to save the man’s life.","t":"醫生未能挽救那個男人的生命。","a":"failed"},{"w":"deal with","m":"處理","x":"Could you tell me how you dealt with that problem?","t":"你可以告訴我你如何處理那個問題嗎？","a":"dealt with"},{"w":"club","m":"社團","x":"Which club do you want to join this year, the movie club or the book club?","t":"你今年想參加哪個社團，電影社還是讀書社？","a":"club"},{"w":"popcorn","m":"爆米花","x":"We went to the movies and ate popcorn last night.","t":"我們昨晚去看電影和吃爆米花。","a":"popcorn"},{"w":"school fair","m":"園遊會","x":"Andy had a good time at the school fair yesterday.","t":"Andy 昨天在園遊會玩得很開心。","a":"school fair"},{"w":"fulfill","m":"實現；實踐","x":"Bella finally fulfilled her dream of being a teacher.","t":"Bella 終於實踐成為一名老師的夢想。","a":"fulfilled"},{"w":"pop","m":"爆開","x":"Chris was sad because his balloon popped.","t":"Chris 很傷心，因為他的氣球爆開了。","a":"popped"}],"builtin":true},{"id":"G9L6","name":"第 6 課","grade":"9","words":[{"w":"usual","m":"通常的","x":"There must be something wrong. Hank didn’t go to school at his usual time.","t":"一定有哪裡不對勁。Hank 沒有在通常的時間去上學。","a":"usual"},{"w":"below","m":"在…下面","x":"The lake is 700 feet below sea level.","t":"這座湖在海平面底下七百英尺。","a":"below"},{"w":"appear","m":"似乎；出現","x":"It appeared that she didn’t keep my secret.","t":"她似乎沒有保守我的祕密。","a":"appeared"},{"w":"cent","m":"分（貨幣單位）","x":"A one-minute phone call to the UK may cost 10 cents.","t":"一通打去英國一分鐘的電話可能花費 10 美分。","a":"cents"},{"w":"cheat","m":"欺騙","x":"The bad guy cheated a woman out of her money.","t":"那個壞人騙走了一位女子的錢。","a":"cheated"},{"w":"waste","m":"浪費","x":"Stop wasting time, guys. We have to finish the report by 10 o’clock.","t":"停止浪費時間，大家。我們必須在十點前完成報告。","a":"wasting"},{"w":"pound","m":"磅","x":"I have lost 20 pounds since I started to exercise.","t":"自從我開始運動以來，我已經減了二十磅。","a":"pounds"},{"w":"peach","m":"桃子","x":"My mother baked some peach pies last weekend.","t":"我媽媽上週末烤了一些桃子派。","a":"peach"},{"w":"pear","m":"梨子","x":"The pears that my father bought this morning tasted sweet.","t":"我父親今天早上買的梨子嘗起來很甜。","a":"pears"},{"w":"lemon","m":"檸檬","x":"There was a lemon tree in back of my house.","t":"我家後面有一棵檸檬樹。","a":"lemon"},{"w":"tomato","m":"番茄","x":"Would you like to eat some tomato soup?","t":"你想要喝點番茄湯嗎？","a":"tomato"},{"w":"pin","m":"大頭針","x":"It was so quiet there that you could hear a pin drop.","t":"那裡安靜到連一根大頭針掉在地上的聲音都聽得見。","a":"pin"},{"w":"superglue","m":"強力膠；三秒膠","x":"You can fix the broken toy with superglue.","t":"你可以用三秒膠修理那個壞掉的玩具。","a":"superglue"},{"w":"paste","m":"漿糊","x":"Fred bought some markers and paste for his art class.","t":"Fred 為他的美術課買了一些麥克筆和漿糊。","a":"paste"},{"w":"jump rope","m":"跳繩","x":"I used to play jump rope with my sisters after school.","t":"我以前放學後常常和我的姐妹們玩跳繩。","a":"jump rope"},{"w":"marker","m":"麥克筆","x":"The kid is drawing with many different colored markers.","t":"那個孩子正在用許多不同顏色的麥克筆畫畫。","a":"markers"},{"w":"paint","m":"油漆","x":"Keep away from the table. The sign says “Wet Paint.”","t":"遠離那張桌子。標誌上寫著「油漆未乾」。","a":"Paint"},{"w":"total","m":"總計的","x":"The total cost of the plan came to five million NT dollars.","t":"這個計畫的總花費達到了五百萬新臺幣。","a":"total"},{"w":"product","m":"產品","x":"I don’t buy products which have been tested on animals.","t":"我不買做過動物試驗的產品。","a":"products"},{"w":"sample","m":"樣品","x":"They gave me some free cheese samples.","t":"他們給我一些免費的起司樣品。","a":"samples"},{"w":"honey","m":"蜂蜜","x":"Honey can be used to treat a sore throat.","t":"蜂蜜可以用來治療喉嚨痛。","a":"Honey"},{"w":"centimeter","m":"公分","x":"The walls are thirty centimeters thick.","t":"那些牆壁有三十公分厚。","a":"centimeters"},{"w":"height","m":"高度；身高","x":"Matt is about the same height as his brother.","t":"Matt 大概和他的兄弟一樣高。","a":"height"},{"w":"therefore","m":"因此","x":"The shoes are lighter and softer. Therefore, they are more comfortable to wear.","t":"這些鞋子比較輕又比較軟。因此，它們穿起來比較舒服。","a":"Therefore"},{"w":"shopkeeper","m":"店主","x":"The shopkeeper usually closes his shop at 10 p.m.","t":"這位店主通常在晚上十點關門。","a":"shopkeeper"},{"w":"come to think of it","m":"這樣一想；想起來","x":"Come to think of it, I know someone who can help.","t":"這樣一想，我認識一個能幫忙的人。","a":"Come to think of it"},{"w":"level","m":"水平；高度","x":"The picture was hung on the wall at eye level.","t":"這幅畫被掛在牆上與視線齊平的高度。","a":"level"},{"w":"sight","m":"視線；視力","x":"Sharon waved until the car was out of sight.","t":"Sharon 一直揮手直到車子離開視線。","a":"sight"}],"builtin":true}];
+const GRADES=[{id:"7",name:"七年級",sub:"Grade 7"},{id:"8",name:"八年級",sub:"Grade 8"},{id:"9",name:"九年級",sub:"Grade 9"},{id:"1200",name:"1200 單字",sub:"綜合練習"}];
+const ALL8={id:"all8",name:"八上 L3–L6 總複習",builtin:true,grade:"8",words:LESSONS.flatMap(l=>l.words)};
+const ALL9={id:"all9",name:"九上 L1–L6 總複習",builtin:true,grade:"9",words:LESSONS9.flatMap(l=>l.words)};
+const ALL7={id:"all7",name:"七上 L1–L6 總複習",builtin:true,grade:"7",words:LESSONS7.flatMap(l=>l.words)};
+const BUILTIN=[...LESSONS7,ALL7,...LESSONS,ALL8,...LESSONS9,ALL9];
+
+
+/* ---------- avatar parts (SVG, viewBox 0 0 120 120) ---------- */
+const INK="#2b1d14";
+const SH="M12 124 C14 100 34 91 60 91 C86 91 106 100 108 124Z";
+const mir=(d)=>d; // helper placeholder for readability
+const RAR={N:{name:"普通",refund:30,w:55},R:{name:"稀有",refund:60,w:30},SR:{name:"超稀有",refund:120,w:12},SSR:{name:"傳說",refund:200,w:3}};
+const PRICE={N:120,R:250,SR:450};
+const SLOTS=[{id:"animal",name:"動物"},{id:"hair",name:"髮型"},{id:"outfit",name:"服裝"},{id:"acc",name:"配件"},{id:"bg",name:"背景"}];
+/* item: id, slot, name, r (rarity), free, gacha (only from draws) */
+const ITEMS=[
+ // animals
+ {id:"cat",slot:"animal",name:"小貓",r:"N",free:1,c:"#f5a65b",
+  ears:'<path d="M35 46 L37 22 L55 35Z" fill="C"/><path d="M85 46 L83 22 L65 35Z" fill="C"/><path d="M40 40 L41 29 L50 35Z" fill="#ffc2b5"/><path d="M80 40 L79 29 L70 35Z" fill="#ffc2b5"/>',
+  face:'<ellipse cx="60" cy="70" rx="10" ry="7" fill="#fff3e4"/><path d="M41 66 L30 64 M41 70 L30 71 M79 66 L90 64 M79 70 L90 71" stroke="#7a4a2a" stroke-width="1.2" stroke-linecap="round"/>'},
+ {id:"dog",slot:"animal",name:"小狗",r:"N",free:1,c:"#d9a46c",
+  face:'<ellipse cx="34" cy="58" rx="8" ry="17" fill="#8a5a35" transform="rotate(14 34 58)"/><ellipse cx="86" cy="58" rx="8" ry="17" fill="#8a5a35" transform="rotate(-14 86 58)"/><ellipse cx="60" cy="70" rx="11" ry="8" fill="#f6dcc0"/>'},
+ {id:"rabbit",slot:"animal",name:"兔子",r:"N",free:1,c:"#f7f1ec",
+  ears:'<ellipse cx="48" cy="24" rx="7" ry="19" fill="C" transform="rotate(-8 48 24)"/><ellipse cx="72" cy="24" rx="7" ry="19" fill="C" transform="rotate(8 72 24)"/><ellipse cx="48" cy="25" rx="3.4" ry="13" fill="#ffc2cf" transform="rotate(-8 48 25)"/><ellipse cx="72" cy="25" rx="3.4" ry="13" fill="#ffc2cf" transform="rotate(8 72 25)"/>',
+  nose:"#ff8fa8"},
+ {id:"bear",slot:"animal",name:"小熊",r:"N",free:1,c:"#a8714a",
+  ears:'<circle cx="37" cy="36" r="10" fill="C"/><circle cx="83" cy="36" r="10" fill="C"/><circle cx="37" cy="36" r="5.5" fill="#e8b48c"/><circle cx="83" cy="36" r="5.5" fill="#e8b48c"/>',
+  face:'<ellipse cx="60" cy="70" rx="11" ry="8" fill="#e8c6a2"/>'},
+ {id:"fox",slot:"animal",name:"狐狸",r:"N",c:"#f07a2f",
+  ears:'<path d="M33 48 L34 17 L55 34Z" fill="C"/><path d="M87 48 L86 17 L65 34Z" fill="C"/><path d="M38 40 L38 25 L49 34Z" fill="#fff0e0"/><path d="M82 40 L82 25 L71 34Z" fill="#fff0e0"/>',
+  face:'<path d="M32 62 Q46 60 60 74 Q74 60 88 62 Q86 84 60 86 Q34 84 32 62Z" fill="#fff4ea"/>'},
+ {id:"frog",slot:"animal",name:"青蛙",r:"N",c:"#7bcf6a",noEyes:1,noNose:1,
+  ears:'<circle cx="45" cy="37" r="11" fill="C"/><circle cx="75" cy="37" r="11" fill="C"/>',
+  face:'<circle cx="45" cy="36" r="7" fill="#fff"/><circle cx="75" cy="36" r="7" fill="#fff"/><circle cx="46" cy="37" r="3.6" fill="'+INK+'"/><circle cx="76" cy="37" r="3.6" fill="'+INK+'"/><circle cx="47" cy="35.6" r="1.2" fill="#fff"/><circle cx="77" cy="35.6" r="1.2" fill="#fff"/>',
+  mouth:'<path d="M45 69 Q60 80 75 69" fill="none" stroke="'+INK+'" stroke-width="2" stroke-linecap="round"/>'},
+ {id:"panda",slot:"animal",name:"熊貓",r:"R",c:"#fbfbfb",eye:"#fff",
+  ears:'<circle cx="37" cy="36" r="10" fill="#2b2b2b"/><circle cx="83" cy="36" r="10" fill="#2b2b2b"/>',
+  face:'<ellipse cx="49" cy="61" rx="7.5" ry="9" fill="#2b2b2b" transform="rotate(28 49 61)"/><ellipse cx="71" cy="61" rx="7.5" ry="9" fill="#2b2b2b" transform="rotate(-28 71 61)"/>'},
+ {id:"penguin",slot:"animal",name:"企鵝",r:"R",c:"#2f3a56",noNose:1,
+  face:'<path d="M35 64 Q35 40 52 44 Q60 50 68 44 Q85 40 85 64 Q85 85 60 86 Q35 85 35 64Z" fill="#fff"/>',
+  mouth:'<path d="M54 66 L66 66 L60 73Z" fill="#ffb238"/>'},
+ {id:"koala",slot:"animal",name:"無尾熊",r:"R",c:"#a7adb8",noNose:1,
+  ears:'<circle cx="33" cy="42" r="13" fill="C"/><circle cx="87" cy="42" r="13" fill="C"/><circle cx="33" cy="43" r="8" fill="#ece3ea"/><circle cx="87" cy="43" r="8" fill="#ece3ea"/>',
+  face:'<ellipse cx="60" cy="66" rx="6" ry="7.5" fill="#3d3f48"/>'},
+ {id:"tiger",slot:"animal",name:"老虎",r:"SR",c:"#f6a23c",
+  ears:'<circle cx="38" cy="36" r="9" fill="C"/><circle cx="82" cy="36" r="9" fill="C"/><circle cx="38" cy="36" r="4.5" fill="#fff0dc"/><circle cx="82" cy="36" r="4.5" fill="#fff0dc"/>',
+  face:'<ellipse cx="60" cy="71" rx="11" ry="8" fill="#fff6ea"/><path d="M60 31 L60 40 M52 32 L54 39 M68 32 L66 39 M33 58 L41 60 M33 64 L40 64 M87 58 L79 60 M87 64 L80 64" stroke="#5a3215" stroke-width="3" stroke-linecap="round"/>'},
+ {id:"unicorn",slot:"animal",name:"獨角獸",r:"SSR",gacha:1,c:"#fff7fb",nose:"#ffb3c8",
+  ears:'<path d="M38 44 L40 26 L52 36Z" fill="C"/><path d="M82 44 L80 26 L68 36Z" fill="C"/><path d="M42 39 L43 31 L49 36Z" fill="#ffc2dc"/><path d="M78 39 L77 31 L71 36Z" fill="#ffc2dc"/>',
+  top:'<path d="M55 33 L60 7 L65 33Z" fill="#ffd166"/><path d="M56.5 26 L63.5 24 M57.5 19 L62.5 17.5" stroke="#f0a020" stroke-width="1.6"/>'},
+ {id:"dragon",slot:"animal",name:"小龍",r:"SSR",gacha:1,c:"#6cc7a8",noNose:1,
+  ears:'<path d="M31 52 L22 40 L34 44Z" fill="#4aa88a"/><path d="M89 52 L98 40 L86 44Z" fill="#4aa88a"/>',
+  face:'<ellipse cx="60" cy="71" rx="12" ry="8" fill="#c8f0de"/><circle cx="56" cy="68" r="1.4" fill="'+INK+'"/><circle cx="64" cy="68" r="1.4" fill="'+INK+'"/>',
+  top:'<path d="M44 36 Q38 22 46 14 Q44 26 50 32Z" fill="#ffe08a"/><path d="M76 36 Q82 22 74 14 Q76 26 70 32Z" fill="#ffe08a"/>'},
+ // hair
+ {id:"h-none",slot:"hair",name:"不戴",r:"N",free:1,draw:""},
+ {id:"tuft",slot:"hair",name:"呆毛",r:"N",free:1,draw:'<path d="M57 33 Q52 22 61 19 Q57 26 64 31" fill="none" stroke="#4a2f20" stroke-width="3.2" stroke-linecap="round"/>'},
+ {id:"bangs",slot:"hair",name:"齊瀏海",r:"N",draw:'<path d="M33 52 Q31 29 60 27 Q89 29 87 52 Q80 42 70 44 Q64 38 58 44 Q50 38 44 45 Q38 42 33 52Z" fill="#4a2f20"/>'},
+ {id:"spiky",slot:"hair",name:"刺刺頭",r:"N",draw:'<path d="M34 47 L35 30 L44 36 L47 21 L54 32 L60 16 L66 32 L73 21 L76 36 L85 30 L86 47 Q60 36 34 47Z" fill="#2d2d2d"/>'},
+ {id:"bun",slot:"hair",name:"丸子頭",r:"N",draw:'<circle cx="60" cy="24" r="10" fill="#3a2a22"/><path d="M36 48 Q36 30 60 29 Q84 30 84 48 Q72 38 60 40 Q48 38 36 48Z" fill="#3a2a22"/><rect x="52" y="31" width="16" height="4" rx="2" fill="#ff8fb1"/>'},
+ {id:"beanie",slot:"hair",name:"毛線帽",r:"N",draw:'<path d="M32 48 Q32 22 60 22 Q88 22 88 48Z" fill="#ffc83a"/><rect x="30" y="43" width="60" height="8" rx="4" fill="#f0a020"/><circle cx="60" cy="18" r="6" fill="#fff"/>'},
+ {id:"curly",slot:"hair",name:"捲捲頭",r:"R",draw:'<g fill="#e09a3e"><circle cx="38" cy="44" r="8"/><circle cx="45" cy="34" r="9"/><circle cx="56" cy="29" r="9"/><circle cx="68" cy="29" r="9"/><circle cx="78" cy="35" r="9"/><circle cx="83" cy="45" r="8"/></g>'},
+ {id:"bob",slot:"hair",name:"妹妹頭",r:"R",draw:'<path d="M29 68 Q25 29 60 26 Q95 29 91 68 L85 68 Q86 46 74 42 Q60 47 46 42 Q34 46 35 68Z" fill="#3a2a22"/>'},
+ {id:"pigtails",slot:"hair",name:"雙馬尾",r:"R",draw:'<circle cx="27" cy="58" r="9" fill="#5a3a26"/><circle cx="93" cy="58" r="9" fill="#5a3a26"/><path d="M34 49 Q34 29 60 28 Q86 29 86 49 Q74 40 60 42 Q46 40 34 49Z" fill="#5a3a26"/><path d="M26 46 L34 50 L26 54Z M38 46 L30 50 L38 54Z" fill="#ff6f9a"/><path d="M94 46 L86 50 L94 54Z M82 46 L90 50 L82 54Z" fill="#ff6f9a"/>'},
+ {id:"cap",slot:"hair",name:"棒球帽",r:"R",draw:'<path d="M33 46 Q33 23 60 23 Q87 23 87 46Z" fill="#e5484d"/><path d="M62 44 Q90 41 99 49 Q82 51 62 48Z" fill="#c23238"/><circle cx="60" cy="23" r="3" fill="#c23238"/><path d="M50 30 Q60 26 70 30" stroke="#fff" stroke-width="2" fill="none"/>'},
+ {id:"witch",slot:"hair",name:"魔法帽",r:"SR",gacha:1,draw:'<ellipse cx="60" cy="41" rx="35" ry="7" fill="#5b3fb3"/><path d="M42 40 L67 2 L79 40Z" fill="#6f4fd8"/><rect x="44" y="33" width="34" height="6" fill="#ffd166"/><path d="M66 12 l2 4 4 .6 -3 3 .8 4 -3.8 -2 -3.8 2 .8 -4 -3 -3 4 -.6Z" fill="#ffd166"/>'},
+ {id:"rainbow",slot:"hair",name:"彩虹瀏海",r:"SSR",gacha:1,grad:1,draw:'<path d="M33 52 Q31 29 60 27 Q89 29 87 52 Q80 42 70 44 Q64 38 58 44 Q50 38 44 45 Q38 42 33 52Z" fill="url(#GID)"/>'},
+ // outfits
+ {id:"tee",slot:"outfit",name:"T 恤",r:"N",free:1,draw:'<path d="'+SH+'" fill="#6cc3f0"/><path d="M50 92 Q60 101 70 92" fill="none" stroke="#3f9bcf" stroke-width="3"/>'},
+ {id:"uniform",slot:"outfit",name:"學生制服",r:"N",free:1,draw:'<path d="'+SH+'" fill="#fdfdfd"/><path d="M40 93 L60 113 L80 93 L72 92 L60 104 L48 92Z" fill="#2f4a8a"/><path d="M57 104 L63 104 L65 117 L60 121 L55 117Z" fill="#e5484d"/>'},
+ {id:"hoodie",slot:"outfit",name:"連帽衫",r:"N",draw:'<path d="'+SH+'" fill="#f0712c"/><path d="M38 95 Q60 106 82 95" fill="none" stroke="#c9541a" stroke-width="6"/><path d="M55 99 V113 M65 99 V113" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><path d="M44 113 L76 113 L80 124 L40 124Z" fill="#d85f20"/>'},
+ {id:"jersey",slot:"outfit",name:"球衣",r:"N",draw:'<path d="'+SH+'" fill="#e2477f"/><path d="M48 92 L60 102 L72 92" fill="none" stroke="#fff" stroke-width="3"/><path d="M20 108 L30 98 M100 108 L90 98" stroke="#fff" stroke-width="4"/><text x="60" y="120" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="17" fill="#fff">7</text>'},
+ {id:"sweater",slot:"outfit",name:"條紋毛衣",r:"N",clip:1,draw:'<path d="'+SH+'" fill="#fdfdfd"/><g clip-path="url(#CID)"><rect x="0" y="99" width="120" height="5" fill="#e5484d"/><rect x="0" y="109" width="120" height="5" fill="#e5484d"/><rect x="0" y="119" width="120" height="5" fill="#e5484d"/></g>'},
+ {id:"overalls",slot:"outfit",name:"吊帶褲",r:"R",draw:'<path d="'+SH+'" fill="#ffd166"/><path d="M44 102 L76 102 L79 124 L41 124Z" fill="#4a78c9"/><path d="M46 102 L40 92 M74 102 L80 92" stroke="#4a78c9" stroke-width="4.5" stroke-linecap="round"/><circle cx="48" cy="106" r="2.2" fill="#ffd166"/><circle cx="72" cy="106" r="2.2" fill="#ffd166"/>'},
+ {id:"suit",slot:"outfit",name:"西裝",r:"R",draw:'<path d="'+SH+'" fill="#2f3550"/><path d="M49 91 L60 112 L71 91Z" fill="#fff"/><path d="M52 96 L60 100 L52 104Z M68 96 L60 100 L68 104Z" fill="#e5484d"/><circle cx="60" cy="100" r="2.4" fill="#c23238"/>'},
+ {id:"hanfu",slot:"outfit",name:"漢服",r:"R",draw:'<path d="'+SH+'" fill="#e5484d"/><path d="M45 92 L73 124 L64 124 L41 95Z" fill="#fff4e0"/><path d="M75 92 L57 113 L53 108 L70 92Z" fill="#fff4e0"/><rect x="20" y="112" width="80" height="6" fill="#ffd166"/>'},
+ {id:"hero",slot:"outfit",name:"英雄披風",r:"SR",back:'<path d="M32 96 Q18 124 14 124 L106 124 Q102 124 88 96Z" fill="#e5484d"/>',draw:'<path d="'+SH+'" fill="#3b6fd8"/><path d="M60 100 l3.5 7 7.6 1 -5.6 5.3 1.4 7.6 -6.9 -3.7 -6.9 3.7 1.4 -7.6 -5.6 -5.3 7.6 -1Z" fill="#ffd166"/>'},
+ {id:"ninja",slot:"outfit",name:"忍者裝",r:"SR",gacha:1,draw:'<path d="'+SH+'" fill="#2b2b3a"/><path d="M46 92 L70 124 L64 124 L42 95Z M74 92 L58 112 L54 107 L70 92Z" fill="#464660"/><rect x="18" y="112" width="84" height="6" fill="#e5484d"/>'},
+ {id:"astro",slot:"outfit",name:"太空裝",r:"SR",gacha:1,draw:'<path d="'+SH+'" fill="#eef1f6"/><path d="M40 92 Q60 100 80 92" fill="none" stroke="#9aa8b8" stroke-width="6"/><rect x="48" y="104" width="24" height="16" rx="3" fill="#c8d1dc"/><circle cx="54" cy="110" r="2.4" fill="#e5484d"/><circle cx="60" cy="110" r="2.4" fill="#ffd166"/><circle cx="66" cy="110" r="2.4" fill="#3b9ad9"/><rect x="24" y="104" width="12" height="8" fill="#3b6fd8"/>'},
+ {id:"princess",slot:"outfit",name:"公主禮服",r:"SSR",gacha:1,draw:'<path d="'+SH+'" fill="#ff9ec4"/><path d="M14 122 Q20 114 26 122 Q32 114 38 122 Q44 114 50 122 Q56 114 62 122 Q68 114 74 122 Q80 114 86 122 Q92 114 98 122 Q104 114 108 122 L108 124 L14 124Z" fill="#ffd0e3"/><path d="M44 93 Q60 104 76 93" fill="none" stroke="#ffd166" stroke-width="2.5"/><path d="M60 98 L65 103 L60 109 L55 103Z" fill="#7fd3ff"/>'},
+ // accessories
+ {id:"a-none",slot:"acc",name:"不戴",r:"N",free:1,draw:""},
+ {id:"glasses",slot:"acc",name:"圓眼鏡",r:"N",draw:'<g fill="rgba(255,255,255,.18)" stroke="#3b2a1e" stroke-width="2"><circle cx="49" cy="60" r="7.5"/><circle cx="71" cy="60" r="7.5"/></g><path d="M56.5 60 Q60 57 63.5 60" stroke="#3b2a1e" stroke-width="2" fill="none"/>'},
+ {id:"flower",slot:"acc",name:"小花",r:"N",draw:'<g fill="#ff8fb1"><circle cx="80" cy="31" r="4.5"/><circle cx="86" cy="35" r="4.5"/><circle cx="84" cy="42" r="4.5"/><circle cx="76" cy="42" r="4.5"/><circle cx="74" cy="35" r="4.5"/></g><circle cx="80" cy="37" r="3.5" fill="#ffd166"/>'},
+ {id:"star",slot:"acc",name:"星星髮夾",r:"N",draw:'<path d="M40 30 l3 6.2 6.8 1 -4.9 4.7 1.2 6.8 -6.1 -3.2 -6.1 3.2 1.2 -6.8 -4.9 -4.7 6.8 -1Z" fill="#ffd166" stroke="#f0a020" stroke-width="1"/>'},
+ {id:"sunglasses",slot:"acc",name:"墨鏡",r:"R",draw:'<rect x="40" y="54" width="18" height="12" rx="5" fill="#1d1d26"/><rect x="62" y="54" width="18" height="12" rx="5" fill="#1d1d26"/><path d="M58 58 H62" stroke="#1d1d26" stroke-width="2.5"/><path d="M43 57 L48 57" stroke="#fff" stroke-width="1.5" opacity=".6"/>'},
+ {id:"headphones",slot:"acc",name:"耳機",r:"R",draw:'<path d="M29 60 Q29 22 60 22 Q91 22 91 60" fill="none" stroke="#4a4a5a" stroke-width="5"/><rect x="23" y="52" width="12" height="18" rx="5" fill="#e2477f"/><rect x="85" y="52" width="12" height="18" rx="5" fill="#e2477f"/>'},
+ {id:"scarf",slot:"acc",name:"圍巾",r:"R",draw:'<path d="M36 89 Q60 99 84 89 L86 97 Q60 108 34 97Z" fill="#e5484d"/><path d="M70 99 L76 99 L78 117 L70 117Z" fill="#c23238"/><path d="M38 93 Q60 102 82 93" stroke="#fff" stroke-width="1.5" fill="none" stroke-dasharray="3 3"/>'},
+ {id:"halo",slot:"acc",name:"天使光環",r:"SR",gacha:1,draw:'<ellipse cx="60" cy="15" rx="17" ry="4.8" fill="none" stroke="#ffd166" stroke-width="3.5"/>'},
+ {id:"crown",slot:"acc",name:"皇冠",r:"SSR",gacha:1,draw:'<path d="M41 33 L43 17 L52 25 L60 12 L68 25 L77 17 L79 33Z" fill="#ffd166" stroke="#e0a400" stroke-width="1.5"/><circle cx="60" cy="27" r="3" fill="#e5484d"/><circle cx="49" cy="29" r="2.2" fill="#3b9ad9"/><circle cx="71" cy="29" r="2.2" fill="#3b9ad9"/>'},
+ // backgrounds
+ {id:"sun",slot:"bg",name:"陽光黃",r:"N",free:1,draw:'<rect width="120" height="120" fill="#ffd86b"/>'},
+ {id:"sky",slot:"bg",name:"天空藍",r:"N",free:1,draw:'<rect width="120" height="120" fill="#9fd8ff"/>'},
+ {id:"mint",slot:"bg",name:"薄荷綠",r:"N",draw:'<rect width="120" height="120" fill="#b6ecc8"/>'},
+ {id:"peach",slot:"bg",name:"蜜桃粉",r:"N",draw:'<rect width="120" height="120" fill="#ffc6b0"/>'},
+ {id:"lilac",slot:"bg",name:"薰衣草",r:"R",draw:'<rect width="120" height="120" fill="#d9c8ff"/>'},
+ {id:"polka",slot:"bg",name:"點點",r:"R",draw:'<rect width="120" height="120" fill="#bfe9f5"/><g fill="#fff" opacity=".8"><circle cx="16" cy="18" r="5"/><circle cx="46" cy="10" r="4"/><circle cx="100" cy="20" r="5"/><circle cx="12" cy="56" r="4"/><circle cx="106" cy="60" r="4"/><circle cx="24" cy="94" r="5"/><circle cx="98" cy="96" r="5"/></g>'},
+ {id:"night",slot:"bg",name:"星空",r:"SR",gacha:1,draw:'<rect width="120" height="120" fill="#2d2a5a"/><g fill="#ffe7a0"><circle cx="18" cy="22" r="1.8"/><circle cx="96" cy="16" r="2.2"/><circle cx="104" cy="52" r="1.5"/><circle cx="12" cy="66" r="1.5"/><circle cx="30" cy="10" r="1.2"/><circle cx="84" cy="34" r="1.2"/></g><circle cx="98" cy="22" r="9" fill="#ffe7a0"/><circle cx="103" cy="19" r="8" fill="#2d2a5a"/>'},
+ {id:"rainbowbg",slot:"bg",name:"彩虹",r:"SSR",gacha:1,draw:'<rect width="120" height="120" fill="#fff4e0"/><g fill="none" stroke-width="7"><circle cx="60" cy="120" r="96" stroke="#ff7a7a"/><circle cx="60" cy="120" r="89" stroke="#ffb35c"/><circle cx="60" cy="120" r="82" stroke="#ffe066"/><circle cx="60" cy="120" r="75" stroke="#7ad99a"/><circle cx="60" cy="120" r="68" stroke="#6cc3f0"/><circle cx="60" cy="120" r="61" stroke="#a594ff"/></g>'}
+];
+const ITEM=Object.fromEntries(ITEMS.map(i=>[i.id,i]));
+const STARTER=ITEMS.filter(i=>i.free).map(i=>i.id);
+const DEFAULT_WEAR={animal:"cat",hair:"h-none",outfit:"tee",acc:"a-none",bg:"sun"};
+let avUid=0;
+function avatarSVG(wear,label){
+  const w=Object.assign({},DEFAULT_WEAR,wear||{});
+  const g=s=>ITEM[w[s]]&&ITEM[w[s]].slot===s?ITEM[w[s]]:ITEM[DEFAULT_WEAR[s]];
+  const an=g("animal"),hr=g("hair"),of=g("outfit"),ac=g("acc"),bg=g("bg");
+  const id="av"+(++avUid);
+  const C=s=>(s||"").replace(/fill="C"/g,`fill="${an.c}"`);
+  const eye=an.eye||INK, pupil=an.eye?INK:"#fff";
+  const eyes=an.noEyes?"":(an.eye
+    ?`<ellipse cx="50" cy="61" rx="3.6" ry="4.2" fill="#fff"/><ellipse cx="70" cy="61" rx="3.6" ry="4.2" fill="#fff"/><circle cx="50.5" cy="61.5" r="2.2" fill="${INK}"/><circle cx="69.5" cy="61.5" r="2.2" fill="${INK}"/>`
+    :`<ellipse cx="50" cy="60" rx="3.4" ry="4.2" fill="${INK}"/><ellipse cx="70" cy="60" rx="3.4" ry="4.2" fill="${INK}"/><circle cx="51.2" cy="58.5" r="1.2" fill="#fff"/><circle cx="71.2" cy="58.5" r="1.2" fill="#fff"/>`);
+  const cheeks='<ellipse cx="42" cy="69" rx="4.6" ry="3" fill="#ff8fa3" opacity=".55"/><ellipse cx="78" cy="69" rx="4.6" ry="3" fill="#ff8fa3" opacity=".55"/>';
+  const nose=an.noNose?"":`<ellipse cx="60" cy="66" rx="2.6" ry="1.8" fill="${an.nose||INK}"/>`;
+  const mouth=an.mouth||`<path d="M55 70 Q57.5 73 60 70 Q62.5 73 65 70" fill="none" stroke="${INK}" stroke-width="1.8" stroke-linecap="round"/>`;
+  const defs=`<defs><clipPath id="${id}c"><circle cx="60" cy="60" r="60"/></clipPath><clipPath id="${id}s"><path d="${SH}"/></clipPath><linearGradient id="${id}g" x1="0" x2="1"><stop offset="0" stop-color="#ff7a7a"/><stop offset=".25" stop-color="#ffb35c"/><stop offset=".5" stop-color="#ffe066"/><stop offset=".75" stop-color="#6cc3f0"/><stop offset="1" stop-color="#a594ff"/></linearGradient></defs>`;
+  const fix=s=>(s||"").replace(/url\(#GID\)/g,`url(#${id}g)`).replace(/url\(#CID\)/g,`url(#${id}s)`);
+  const body=`<g clip-path="url(#${id}c)">${bg.draw}${fix(of.back)}${C(an.ears)}${fix(of.draw)}<circle cx="60" cy="58" r="28" fill="${an.c}"/>${C(an.face)}${eyes}${cheeks}${nose}${mouth}${fix(hr.draw)}${an.top||""}${fix(ac.draw)}</g>`;
+  return `<svg viewBox="0 0 120 120" role="img" aria-label="${label||"角色頭像"}">${defs}${body}</svg>`}
+function Av(wear,cls="av",label){return h("span",{class:cls,html:avatarSVG(wear,label)})}
+
+/* ---------- 老師的 Google 表單（設定好後填入；留空時改用複製／LINE 傳送） ---------- */
+const FORM={url:"https://docs.google.com/forms/d/e/1FAIpQLSePWj5_O49NlXZ2hRoZpZ-6cJPUQcz4tiy7ZvlxHNw47vhE6w/viewform",entry:{date:"entry.1994162901",cls:"entry.1141725819",seat:"entry.1278388917",name:"entry.403464333",set:"entry.1850431944",mode:"entry.1566534260",score:"entry.1216531556",right:"entry.1366700211",detail:"entry.1278479389"}};
+
+/* ---------- state ---------- */
+let S={sets:[],cur:"G7L1",grade:"7",profiles:{},who:null,teacher:""};
+try{const s=JSON.parse(localStorage.getItem("vocab-site"));if(s&&typeof s==="object")S=Object.assign(S,s)}catch(e){}
+const LEGACY={points:+S.points||0,best:S.best||{},review:S.review||{}};
+["points","best","review","student"].forEach(k=>delete S[k]);
+if(!S.profiles||typeof S.profiles!=="object")S.profiles={};
+S.sets=(Array.isArray(S.sets)?S.sets:[]).filter(x=>x&&x.id!=="sample"&&!x.builtin);
+S.sets.forEach(x=>{if(!x.grade)x.grade="8"});
+if(!GRADES.some(g=>g.id===S.grade))S.grade="7";
+if(S.who&&!S.profiles[S.who])S.who=null;
+const save=()=>{try{localStorage.setItem("vocab-site",JSON.stringify(S))}catch(e){}};
+const P=()=>S.profiles[S.who]||null;
+function fixProfile(p){
+  p.points=+p.points||0;p.earned=+p.earned||0;p.tickets=+p.tickets||0;
+  p.owned=Array.isArray(p.owned)?p.owned.filter(id=>ITEM[id]):[];STARTER.forEach(id=>{if(!p.owned.includes(id))p.owned.push(id)});
+  p.wear=Object.assign({},DEFAULT_WEAR,p.wear||{});Object.keys(DEFAULT_WEAR).forEach(s=>{if(!p.owned.includes(p.wear[s]))p.wear[s]=DEFAULT_WEAR[s]});
+  p.best=p.best||{};p.review=p.review||{};p.log=Array.isArray(p.log)?p.log:[];return p}
+Object.values(S.profiles).forEach(fixProfile);
+function newProfile(cls,seat,name,animal){
+  const p=fixProfile({cls,seat,name,points:0,earned:0,tickets:1,owned:[],wear:Object.assign({},DEFAULT_WEAR,{animal}),created:Date.now()});
+  if(LEGACY.points&&!Object.keys(S.profiles).length){p.points+=LEGACY.points;p.earned+=LEGACY.points;p.best=LEGACY.best;p.review=LEGACY.review}
+  return p}
+const label=p=>`${p.cls} 班 ${p.seat} 號 ${p.name}`;
+
+function mixAll(){const m=new Map();[...BUILTIN,...S.sets].filter(x=>x.grade!=="1200").forEach(x=>x.words.forEach(w=>{if(!m.has(w.w.toLowerCase()))m.set(w.w.toLowerCase(),w)}));
+  return {id:"mixall",name:"目前收錄單字大混合",builtin:true,grade:"1200",words:[...m.values()]}}
+const allSets=()=>{const a=[...BUILTIN,...S.sets];return [...a,mixAll()]};
+const gradeSets=g=>allSets().filter(x=>x.grade===g);
+const curSet=()=>{const gs=gradeSets(S.grade);return gs.find(s=>s.id===S.cur)||gs[0]||null};
+function pickSet(id){if(S.cur===id)return;S.cur=id;quiz=null;filter="";save();render()}
+function pickGrade(g){if(S.grade===g)return;S.grade=g;const c=curSet();if(c)S.cur=c.id;quiz=null;filter="";pendingDelete=null;save();render()}
+let leaveTarget=null;
+function confirmLeave(id){if(leaveTarget===id){leaveTarget=null;return true}leaveTarget=id;toast("檢測進行中，再按一次就會離開並結束這次檢測");return false}
+let tab="learn", quiz=null, quizMode="mix", quizCount=10, quizScope="all", micBroken=false, pendingDelete=null;
+const reviewList=()=>{const c=curSet(),p=P();if(!c||!p)return[];return p.review[c.id]||(p.review[c.id]=[])};
+const reviewWords=()=>{const c=curSet();if(!c)return[];const r=reviewList();return c.words.filter(w=>r.includes(w.w))};
+function addReview(w){const r=reviewList();if(!r.includes(w)){r.push(w);save()}}
+function removeReview(w){const r=reviewList();const i=r.indexOf(w);if(i>=0){r.splice(i,1);save()}}
+const ICON_TICKET='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4Z"/><path d="M14 6v12" stroke-dasharray="2 2"/></svg>';
+const ICON_STAR='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>';
+const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
+/* ---------- helpers ---------- */
+function h(tag,attrs={},...kids){const e=document.createElement(tag);
+  for(const[k,v]of Object.entries(attrs)){if(v==null||v===false)continue;
+    if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else if(k==="class")e.className=v;else if(k==="text")e.textContent=v;else if(k==="html")e.innerHTML=v;else e.setAttribute(k,v===true?(k.startsWith("aria-")?"true":""):v)}
+  kids.flat().forEach(c=>c!=null&&c!==false&&e.append(c));return e}
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const norm=s=>s.toLowerCase().replace(/[^a-z' -]/g,"").replace(/\s+/g," ").trim();
+let toastT;function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,2600)}
+
+let voices=[];
+function loadVoices(){try{voices=speechSynthesis.getVoices()}catch(e){}}
+if("speechSynthesis"in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}
+function say(text,rate=.9){
+  if(!("speechSynthesis"in window)){toast("這個瀏覽器不支援發音");return}
+  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=rate;
+  const v=voices.find(v=>/en[-_]US/i.test(v.lang))||voices.find(v=>/^en/i.test(v.lang));if(v)u.voice=v;
+  speechSynthesis.speak(u)}
+const spk=(text,label="播放發音",cls="icon-btn",rate)=>h("button",{class:cls,"aria-label":label,title:label,html:ICON_SPK,onclick:e=>{e.stopPropagation();say(text,rate)}});
+
+let micState=null;
+(function(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){micState="no";return}
+  try{if(document.featurePolicy&&!document.featurePolicy.allowsFeature("microphone")){micState="no";return}}catch(e){}
+  try{navigator.permissions.query({name:"microphone"}).then(r=>{if(r.state==="denied"){micState="no";if(typeof tab!=="undefined"&&tab==="quiz"&&!quiz)render()}}).catch(()=>{})}catch(e){}})();
+function canUse(type,word,words){
+  if(type==="speak")return micState!=="no";
+  if(type==="listen"||type==="meaning")return new Set(words.map(w=>w.w.toLowerCase())).size>=4;
+  if(type==="order")return !!word.x&&word.x.trim().split(/\s+/).length>=3;
+  return true}
+
+
+/* ---------- render shell ---------- */
+function bump(){const b=document.querySelector(".me-btn");if(!b)return;b.classList.remove("bump");void b.offsetWidth;b.classList.add("bump")}
+function updateHeader(){
+  const me=document.getElementById("me");const p=P();
+  if(!p){me.replaceChildren();return}
+  me.replaceChildren(h("button",{class:"me-btn","aria-label":"我的角色",onclick:()=>{if(quiz&&!quiz.done&&!confirmLeave("tab-style"))return;tab="style";quiz=quiz&&quiz.done?null:quiz;render()}},
+    Av(p.wear,"av",p.name+"的頭像"),
+    h("span",{class:"me-info"},h("b",{text:`${p.cls}-${p.seat} ${p.name}`}),
+      h("span",{},h("span",{text:`★ ${p.points} 點`}),h("span",{text:`券 ${p.tickets} 張`})))))}
+function render(){
+  const p=P();
+  document.body.dataset.grade=S.grade;
+  updateHeader();
+  const wordTabs=tab==="learn"||tab==="quiz"||tab==="sets";
+  const gb=document.getElementById("gradeBar"),lb=document.getElementById("lessonBar"),nav=document.querySelector("nav");
+  gb.hidden=!p||!wordTabs;lb.hidden=!p||!wordTabs;nav.hidden=!p;
+  const v=document.getElementById("view");
+  if(!p){v.replaceChildren(Login());return}
+  gb.replaceChildren(...GRADES.map(g=>h("button",{class:"grade",role:"tab","data-g":g.id,"aria-selected":g.id===S.grade,
+    onclick:()=>{if(quiz&&!quiz.done&&g.id!==S.grade&&!confirmLeave("g"+g.id))return;pickGrade(g.id)}},h("b",{text:g.name}),h("small",{text:g.sub}))));
+  const cs=curSet();
+  lb.replaceChildren(...gradeSets(S.grade).map(x=>h("button",{class:"lesson"+(x.builtin?"":" custom"),"aria-pressed":!!cs&&x.id===cs.id,onclick:()=>{if(quiz&&!quiz.done&&x.id!==S.cur&&!confirmLeave(x.id))return;pickSet(x.id)}},
+    h("span",{text:x.name}),h("small",{text:`${x.words.length} 字`}))));
+  document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===tab));
+  v.replaceChildren(tab==="style"?Style():tab==="draw"?Draw():tab==="sets"?Sets():(!cs||!cs.words.length)?EmptyGrade():tab==="learn"?Learn():Quiz())}
+function EmptyGrade(){
+  const g=GRADES.find(x=>x.id===S.grade);
+  return h("section",{class:"panel empty"},
+    h("span",{class:"badge",text:g.id}),
+    h("h2",{text:`${g.name}的單字還沒加進來`}),
+    h("p",{class:"muted",text:"可以請老師加入內建課別，或到「單字集」分頁自己匯入。"}),
+    h("div",{class:"row",style:"justify-content:center"},h("button",{class:"btn primary",text:"去匯入單字",onclick:()=>{tab="sets";render()}})))}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  if(quiz&&!quiz.done&&b.dataset.tab!=="quiz"&&!confirmLeave("tab-"+b.dataset.tab))return;
+  if(b.dataset.tab!=="quiz"&&quiz&&!quiz.done)quiz=null;
+  tab=b.dataset.tab;render()});
+
+/* ---------- login ---------- */
+let loginAnimal="cat",loginErr="",loginTaken=null;
+function Login(){
+  const ids=Object.keys(S.profiles).sort();
+  const cls=h("input",{id:"lgCls",inputmode:"numeric",placeholder:"例如 701",maxlength:"6",autocomplete:"off"});
+  const seat=h("input",{id:"lgSeat",type:"number",inputmode:"numeric",min:"1",max:"60",placeholder:"例如 12"});
+  const name=h("input",{id:"lgName",placeholder:"你的名字",maxlength:"12",autocomplete:"off"});
+  const err=h("p",{class:"err",role:"alert",text:loginErr});
+  const hero=h("div",{class:"login-hero"},Av({animal:loginAnimal},"av"),h("h2",{text:"歡迎來到單字練習站"}),
+    h("p",{class:"today",text:`今天是 ${today().replace(/-/g," / ")}`}));
+  const picks=h("div",{class:"pick-row",role:"group","aria-label":"選擇你的動物"},...ITEMS.filter(i=>i.slot==="animal"&&i.free).map(a=>
+    h("button",{class:"pick","aria-pressed":a.id===loginAnimal,"aria-label":a.name,title:a.name,onclick:()=>{loginAnimal=a.id;keep();render();restore()}},Av({animal:a.id,bg:"sun"},"av",a.name))));
+  let saved={};const keep=()=>{saved={c:cls.value,s:seat.value,n:name.value}};
+  const restore=()=>{const q=id=>document.getElementById(id);if(q("lgCls")){q("lgCls").value=saved.c||"";q("lgSeat").value=saved.s||"";q("lgName").value=saved.n||""}};
+  const go=()=>{
+    const c=cls.value.trim(),s=String(parseInt(seat.value,10)||""),n=name.value.trim();
+    if(!c||!s||!n){err.textContent="請填好班級、座號和姓名";return}
+    const id=`${c}-${s}`;const ex=S.profiles[id];
+    if(ex&&ex.name!==n&&loginTaken!==id){loginTaken=id;err.textContent=`${c} 班 ${s} 號在這台裝置上已經是「${ex.name}」的帳號。如果那就是你，再按一次「開始」會用原本的帳號登入。`;return}
+    if(!ex)S.profiles[id]=newProfile(c,s,n,loginAnimal);
+    S.who=id;loginErr="";loginTaken=null;tab="learn";save();render();
+    toast(ex?`歡迎回來，${ex.name}！`:`帳號建立好了，送你 1 張抽獎券！`)};
+  [cls,seat,name].forEach(i=>i.addEventListener("keydown",e=>{if(e.key==="Enter")go()}));
+  return h("div",{style:"display:flex;flex-direction:column;gap:16px"},
+    h("section",{class:"panel login"},hero,
+      h("div",{},h("h3",{text:"1. 選一隻動物當你的角色",style:"margin-bottom:8px"}),picks),
+      h("div",{},h("h3",{text:"2. 填寫你的資料",style:"margin-bottom:8px"}),
+        h("div",{class:"form-grid"},h("label",{class:"field"},"班級",cls),h("label",{class:"field"},"座號",seat),h("label",{class:"field wide"},"姓名",name))),
+      err,
+      h("button",{class:"btn primary",style:"font-size:1.1rem;padding:12px",text:"開始",onclick:go}),
+      h("p",{class:"note",text:"你的點數、造型和抽獎券會存在這台裝置上。下次用同一台裝置，選自己的名字就能繼續。"})),
+    ids.length?h("section",{class:"panel"},h("h3",{text:"這台裝置上的帳號"}),
+      h("div",{class:"who-list"},...ids.map(id=>{const p=S.profiles[id];return h("button",{class:"who",onclick:()=>{S.who=id;tab="learn";save();render();toast(`歡迎回來，${p.name}！`)}},Av(p.wear,"av"),h("span",{text:label(p)}))}))):null)}
+/* ---------- learn ---------- */
+let filter="";
+function highlight(sentence,word){const p=h("p");const re=new RegExp(`\\b(${word.split(" ").map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")})(?![\\w’'])`,"ig");
+  sentence.split(re).forEach((part,i)=>p.append(i%2?h("mark",{text:part}):part));return p}
+function Learn(){
+  const words=curSet().words;
+  if(!words.length)return h("section",{class:"panel"},h("h2",{text:"這個單字集還沒有單字"}),h("p",{class:"muted",text:"到「單字集」分頁貼上你的單字清單就能開始。"}),h("div",{class:"row"},h("button",{class:"btn primary",text:"去匯入單字",onclick:()=>{tab="sets";render()}})));
+  const list=h("div",{class:"words"});
+  const draw=()=>{list.replaceChildren(...words.filter(w=>!filter||w.w.toLowerCase().includes(filter)||w.m.includes(filter)).map(w=>
+    h("div",{class:"word-row"},spk(w.w,`播放 ${w.w} 的發音`),
+      h("div",{class:"word-head"},h("span",{class:"word-en",text:w.w}),h("span",{class:"word-zh",text:w.m})),
+      w.x?h("details",{class:"ex"},h("summary",{text:"看例句"}),h("div",{class:"ex-body"},spk(w.x,"播放例句","icon-btn",.85),h("div",{class:"ex-text"},highlight(w.x,w.a||w.w),w.t?h("p",{class:"tr",text:w.t}):null))):h("span",{class:"small muted",text:"（沒有例句）"}))))};
+  draw();
+  const rw=reviewWords();
+  const review=rw.length?h("section",{class:"panel review-panel"},
+    h("div",{class:"row spread"},h("h2",{text:`複習清單（${rw.length}）`}),
+      h("button",{class:"btn primary",text:"只考複習清單",onclick:()=>{quizScope="review";quiz=null;tab="quiz";render()}})),
+    h("p",{class:"small muted",text:"檢測答錯的單字會自動放進來。用「只考複習清單」答對就會自動移出，也可以自己按「已學會」。"}),
+    h("div",{class:"review"},...rw.map(w=>h("div",{class:"review-item"},spk(w.w),
+      h("div",{class:"word-head",style:"flex:1"},h("strong",{text:w.w}),h("span",{class:"muted",text:w.m})),
+      h("button",{class:"btn",text:"已學會",onclick:()=>{removeReview(w.w);render()}}))))):null;
+  return h("div",{style:"display:flex;flex-direction:column;gap:18px"},review,h("section",{class:"panel"},
+    h("div",{class:"row spread"},h("h2",{text:"單字列表"}),
+      h("input",{id:"search",type:"search",placeholder:"搜尋英文或中文",value:filter,oninput:e=>{filter=e.target.value.trim().toLowerCase();draw()}})),
+    h("p",{class:"small muted",text:"點喇叭聽發音，展開例句可以聽整句。熟悉之後到「檢測」挑戰看看。"}),list))}
+
+/* ---------- quiz ---------- */
+function Quiz(){
+  if(quiz&&quiz.done)return Results();
+  if(quiz)return Question();
+  const words=curSet().words;
+  const avail=t=>words.some(w=>canUse(t,w,words));
+  const cards=h("div",{class:"types"},
+    h("button",{class:"type","aria-pressed":quizMode==="mix",onclick:()=>{quizMode="mix";render()}},
+      h("div",{class:"type-top"},h("span",{class:"type-name",text:"綜合挑戰"}),h("span",{class:"pts",text:"10–40 點"})),
+      h("span",{class:"small",text:"五種題型隨機出題，最能檢驗實力"})),
+    ...Object.entries(TYPES).map(([k,t])=>h("button",{class:"type","aria-pressed":quizMode===k,disabled:!avail(k),onclick:()=>{quizMode=k;render()}},
+      h("div",{class:"type-top"},h("span",{class:"type-name",text:t.name}),h("span",{class:"pts",text:`+${t.pts} 點／題`})),
+      h("div",{class:"dots","aria-label":`難度 ${t.lv} / 5`},...[1,2,3,4,5].map(n=>h("i",{class:n<=t.lv?"on":""}))),
+      h("span",{class:"small",text:avail(k)?t.desc:(k==="order"?"需要有例句的單字":k==="speak"?"這裡無法使用麥克風。請用 Chrome 或 Edge 開啟有麥克風的網站版本":"至少需要 4 個不同的單字")}))));
+  const best=P().best[curSet().id];
+  const rn=reviewWords().length;if(!rn)quizScope="all";
+  return h("section",{class:"panel"},
+    h("div",{class:"row spread"},h("h2",{text:"選擇題型"}),best!=null?h("span",{class:"small muted",text:`這個單字集最高分：${best} 點`}):null),
+    cards,
+    h("div",{class:"row spread"},
+      h("div",{class:"row"},
+      h("label",{class:"row",for:"scope"},"範圍",h("select",{id:"scope",onchange:e=>quizScope=e.target.value},
+        h("option",{value:"all",selected:quizScope==="all",text:`整個單字集（${words.length}）`}),
+        h("option",{value:"review",selected:quizScope==="review",disabled:!rn,text:`複習清單（${rn}）`}))),
+      h("label",{class:"row",for:"count"},"題數",h("select",{id:"count",onchange:e=>quizCount=+e.target.value},...[5,10,20].map(n=>h("option",{value:n,selected:n===quizCount,text:`${n} 題`}))))),
+      h("button",{class:"btn primary",disabled:!words.length,onclick:startQuiz,text:"開始檢測"})))}
+
+function startQuiz(){
+  const words=curSet().words;const qs=[];
+  const types=Object.keys(TYPES);
+  const base=quizScope==="review"?reviewWords():words;
+  let pool=quizMode==="mix"?base:base.filter(w=>canUse(quizMode,w,words));
+  if(!pool.length){toast(quizScope==="review"?"複習清單裡沒有適合這種題型的單字":"這個單字集不適合這種題型");return}
+  let bag=[];
+  for(let k=0;k<quizCount;k++){
+    if(!bag.length)bag=shuffle(pool);
+    const word=bag.pop();
+    const type=quizMode==="mix"?shuffle(types.filter(t=>canUse(t,word,words)))[0]:quizMode;
+    qs.push({type,word})}
+  quiz={qs,i:0,score:0,right:0,answered:false,wrongs:[],byType:{},log:[],mode:quizMode,scope:quizScope,
+    time:new Date().toLocaleString("zh-TW",{hour12:false})};
+  render();autoPlay()}
+function autoPlay(){const q=quiz&&quiz.qs[quiz.i];if(q&&(q.type==="listen"||q.type==="spell"))setTimeout(()=>say(q.word.w),250)}
+
+function Question(){
+  const q=quiz.qs[quiz.i],t=TYPES[q.type],words=curSet().words;
+  const box=h("section",{class:"panel"});
+  const fb=h("div");
+  box.append(
+    h("div",{class:"q-meta"},h("span",{text:`第 ${quiz.i+1} / ${quiz.qs.length} 題`}),h("span",{class:"chip",text:`${t.name} · +${t.pts}`}),h("span",{class:"pts",text:`本輪 ${quiz.score} 點`})),
+    h("div",{class:"bar"},h("span",{style:`width:${quiz.i/quiz.qs.length*100}%`})));
+
+  const finish=(ok,o={})=>{
+    if(quiz.answered)return;quiz.answered=true;
+    const extra=o.extra;
+    const earned=ok?(o.hint?Math.ceil(t.pts/2):t.pts):0;
+    const bt=quiz.byType[q.type]||(quiz.byType[q.type]={n:0,ok:0});bt.n++;
+    quiz.log.push({type:q.type,w:q.word.w,m:q.word.m,ok,earned,given:o.given||"",hint:!!o.hint});
+    if(ok){quiz.score+=earned;quiz.right++;bt.ok++;P().points+=earned;P().earned+=earned;if(quiz.scope==="review")removeReview(q.word.w);save();updateHeader();bump()}
+    else{quiz.wrongs.push(q.word);addReview(q.word.w)}
+    box.querySelectorAll(".opt,.tok,#spellIn,#spellGo,#micBtn,.self").forEach(el=>el.disabled=true);
+    if(q.type==="spell"){const hb=box.querySelector("#hintBtn");if(hb)hb.disabled=true}
+    const last=quiz.i===quiz.qs.length-1;
+    const next=h("button",{class:"btn primary",text:last?"看結果":"下一題",onclick:()=>{quiz.i++;quiz.answered=false;if(last){quiz.done=true;P().best[curSet().id]=Math.max(P().best[curSet().id]||0,quiz.score);save()}render();autoPlay()}});
+    fb.replaceChildren(h("div",{class:"feedback "+(ok?"ok":"no")},
+      h("strong",{text:ok?`答對了！+${earned} 點${o.hint?"（用了提示，點數減半）":""}`:"答錯了，已加入複習清單"}),
+      h("span",{class:"ans",text:extra||`${q.word.w}　${q.word.m}`}),spk(extra||q.word.w,"播放正確答案")),
+      h("div",{class:"row",style:"justify-content:flex-end"},next));
+    next.focus()};
+
+  const choices=()=>{const others=shuffle([...new Map(words.filter(w=>w.w.toLowerCase()!==q.word.w.toLowerCase()).map(w=>[w.w.toLowerCase(),w])).values()]).slice(0,3);
+    const opts=shuffle([q.word,...others]);
+    return h("div",{class:"options"},...opts.map(o=>h("button",{class:"opt",text:o.w,onclick:e=>{
+      const ok=o===q.word;e.target.classList.add(ok?"right":"wrong");
+      if(!ok)[...e.target.parentNode.children].find(b=>b.textContent===q.word.w).classList.add("right");finish(ok,{given:o.w})}})))};
+
+  if(q.type==="listen"){
+    box.append(h("div",{class:"prompt"},spk(q.word.w,"再聽一次","icon-btn listen-big"),h("span",{class:"muted small",text:"聽不清楚？再按一次，或聽慢速"}),
+      h("button",{class:"btn",text:"慢速播放",onclick:()=>say(q.word.w,.55)})),choices())}
+  else if(q.type==="meaning"){
+    box.append(h("div",{class:"prompt"},h("span",{class:"muted small",text:"這個中文是哪個英文單字？"}),h("span",{class:"zh",text:q.word.m})),choices())}
+  else if(q.type==="speak"){
+    let tries=0;const MAX=3;
+    const status=h("div",{class:"status","aria-live":"polite",text:"先聽示範，再按麥克風念出這個單字（有 3 次機會）"});
+    const swap=()=>{if(quiz.answered||q.type!=="speak")return;micState="no";
+      q.type=shuffle(["listen","meaning","spell","order"].filter(x=>canUse(x,q.word,words)))[0]||"spell";
+      toast("這裡無法使用麥克風，這題改成其他題型");render();autoPlay()};
+    const mic=h("button",{class:"btn primary mic",id:"micBtn",html:ICON_MIC.replace("<svg",'<svg width="18" height="18"')+" 按我開始念",onclick:()=>{
+      const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+      if(!SR){swap();return}
+      let r;try{r=new SR()}catch(e){swap();return}
+      r.lang="en-US";r.maxAlternatives=5;r.interimResults=false;
+      status.textContent="請說……";mic.disabled=true;mic.classList.add("listening");
+      r.onresult=e=>{micState="ok";
+        const alts=[...e.results[0]].map(a=>norm(a.transcript));const target=norm(q.word.w);
+        const ok=alts.some(a=>a===target||(" "+a+" ").includes(" "+target+" "));
+        tries++;const heard=alts[0]||"（沒聽清楚）";
+        if(ok){status.textContent=`系統聽到：「${heard}」`;finish(true,{given:"念成："+heard+(tries>1?`（第 ${tries} 次）`:"")})}
+        else if(tries>=MAX){status.textContent=`系統聽到：「${heard}」`;finish(false,{given:"念成："+heard})}
+        else status.textContent=`系統聽到：「${heard}」，不太對喔。先聽一次示範，還有 ${MAX-tries} 次機會`};
+      r.onerror=e=>{
+        if(e.error==="network"&&micState==="ok"){status.textContent="網路不穩，請再按一次麥克風";return}
+        if(["not-allowed","service-not-allowed","audio-capture","network"].includes(e.error)){swap();return}
+        status.textContent="沒有聽到聲音，請靠近麥克風再試一次（不會扣機會）"};
+      r.onend=()=>{mic.classList.remove("listening");if(!quiz.answered&&micState!=="no")mic.disabled=false};
+      try{r.start()}catch(e){swap()}}});
+    box.append(h("div",{class:"prompt"},h("span",{class:"big",text:q.word.w}),h("span",{class:"muted",text:q.word.m}),spk(q.word.w,"聽示範")),
+      h("div",{class:"row",style:"justify-content:center"},mic),status);
+    if(micState==="no")setTimeout(swap,0)}
+  else if(q.type==="spell"){
+    const inp=h("input",{id:"spellIn",autocomplete:"off",autocapitalize:"off",spellcheck:"false",placeholder:"輸入英文單字",onkeydown:e=>{if(e.key==="Enter")check()}});
+    let hinted=0;
+    const letters=[...q.word.w].filter(c=>/[a-z]/i.test(c)).length;
+    const slots=h("span",{class:"slots","aria-live":"polite"});
+    const drawSlots=()=>{let n=0;slots.textContent=[...q.word.w].map(c=>/[a-z]/i.test(c)?(n++<hinted?c:"_"):c).join(" ")};
+    drawSlots();
+    const check=()=>{if(!inp.value.trim())return;const ok=norm(inp.value)===norm(q.word.w);inp.style.borderColor=ok?"var(--ok)":"var(--bad)";finish(ok,{given:inp.value.trim(),hint:hinted>0})};
+    const hintBtn=h("button",{class:"btn hint",id:"hintBtn",text:`提示一個字母（只拿 ${Math.ceil(t.pts/2)} 點）`,onclick:()=>{
+      hinted++;drawSlots();hintBtn.textContent="再提示一個字母";if(hinted>=letters-1)hintBtn.disabled=true;inp.focus()}});
+    box.append(h("div",{class:"prompt"},h("span",{class:"zh",text:q.word.m}),spk(q.word.w,"播放發音","icon-btn listen-big"),slots),
+      h("div",{class:"spell"},inp,h("button",{class:"btn primary",id:"spellGo",text:"送出",onclick:check})),
+      h("div",{class:"row",style:"justify-content:center"},hintBtn));
+    setTimeout(()=>inp.focus(),50)}
+  else if(q.type==="order"){
+    const toks=q.word.x.trim().split(/\s+/).map((t,i)=>({t,i}));
+    let bankList=shuffle(toks);if(bankList.every((x,i)=>x.i===i))bankList=bankList.reverse();
+    const ans=[];const bank=h("div",{class:"tray bank"}),out=h("div",{class:"tray","aria-label":"你排出的句子"});
+    let heard=false;
+    const hintBtn=h("button",{class:"btn hint",id:"hintBtn",html:ICON_SPK.replace("<svg",'<svg width="18" height="18"')+` 提示：播放例句（只拿 ${Math.ceil(t.pts/2)} 點）`,onclick:()=>{
+      heard=true;say(q.word.x,.85);hintBtn.innerHTML=ICON_SPK.replace("<svg",'<svg width="18" height="18"')+" 再聽一次";}});
+    const slowBtn=h("button",{class:"btn",text:"慢速",onclick:()=>{heard=true;say(q.word.x,.55);hintBtn.innerHTML=ICON_SPK.replace("<svg",'<svg width="18" height="18"')+" 再聽一次"}});
+    const go=h("button",{class:"btn primary",text:"檢查",disabled:true,onclick:()=>{
+      const mine=ans.map(x=>x.t).join(" ");const ok=norm(mine)===norm(q.word.x);finish(ok,{extra:q.word.x,given:mine,hint:heard})}});
+    const draw=()=>{if(quiz.answered)return;
+      out.replaceChildren(...(ans.length?ans.map(x=>h("button",{class:"tok",text:x.t,onclick:()=>{ans.splice(ans.indexOf(x),1);bankList.push(x);draw()}})):[h("span",{class:"small muted",style:"padding:6px",text:"點下面的字詞，依序排成句子"})]));
+      bank.replaceChildren(...bankList.map(x=>h("button",{class:"tok",text:x.t,onclick:()=>{bankList.splice(bankList.indexOf(x),1);ans.push(x);draw()}})));
+      go.disabled=bankList.length>0};
+    draw();
+    box.append(h("div",{class:"prompt"},h("span",{class:"muted small",text:"把字詞排回正確的例句，關鍵字是"}),h("span",{class:"big",text:q.word.w}),h("span",{class:"muted",text:q.word.m}),q.word.t?h("span",{class:"tr-prompt",text:"中文：「"+q.word.t+"」"}):null),
+      h("div",{class:"row",style:"justify-content:center"},hintBtn,slowBtn),
+      out,bank,h("div",{class:"row",style:"justify-content:flex-end"},h("button",{class:"btn",text:"全部清除",onclick:()=>{bankList.push(...ans.splice(0));draw()}}),go))}
+
+  box.append(fb,h("div",{class:"row"},h("button",{class:"btn",text:"結束檢測",onclick:()=>{quiz=null;render()}})));
+  return box}
+
+function confetti(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const c=h("canvas",{class:"confetti"});document.body.append(c);const x=c.getContext("2d");
+  const W=c.width=innerWidth,H=c.height=innerHeight;const cs=getComputedStyle(document.documentElement);
+  const cols=["--g7","--g8","--g9","--g12","--sun"].map(v=>cs.getPropertyValue(v).trim()||"#f0712c");
+  const ps=Array.from({length:110},()=>({x:W/2+(Math.random()-.5)*120,y:H*.35,vx:(Math.random()-.5)*11,vy:-Math.random()*11-4,r:Math.random()*6+4,a:Math.random()*6,c:cols[Math.floor(Math.random()*cols.length)]}));
+  let f=0;(function loop(){x.clearRect(0,0,W,H);ps.forEach(p=>{p.vy+=.32;p.x+=p.vx;p.y+=p.vy;p.a+=.15;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);x.restore()});
+    if(++f<150)requestAnimationFrame(loop);else c.remove()})()}
+
+/* ---------- 造型 (style & shop) ---------- */
+let styleSlot="animal",pendingBuy=null;
+function itemState(p,it){
+  if(p.wear[it.slot]===it.id)return "wearing";
+  if(p.owned.includes(it.id))return "owned";
+  if(it.gacha)return "locked";
+  return "buy"}
+function Style(){
+  const p=P();
+  const items=ITEMS.filter(i=>i.slot===styleSlot);
+  const grid=h("div",{class:"items"},...items.map(it=>{
+    const st=itemState(p,it),price=PRICE[it.r];
+    const confirm=pendingBuy===it.id;
+    const txt=st==="wearing"?"穿戴中":st==="owned"?"點一下換上":st==="locked"?"抽獎限定":confirm?(p.points>=price?`確定用 ${price} 點兌換？`:`還差 ${price-p.points} 點`):`兌換 ${price} 點`;
+    return h("button",{class:`item ${st}${confirm?" confirm":""}`,"aria-label":`${it.name}，${RAR[it.r].name}，${txt}`,onclick:()=>{
+      if(st==="owned"){p.wear[it.slot]=it.id;pendingBuy=null;save();render();return}
+      if(st==="wearing")return;
+      if(st==="locked"){toast("這個造型只能從抽獎得到");return}
+      if(!confirm){pendingBuy=it.id;render();return}
+      if(p.points<price){toast(`點數不夠，還差 ${price-p.points} 點。多做幾次檢測吧！`);pendingBuy=null;render();return}
+      p.points-=price;p.owned.push(it.id);p.wear[it.slot]=it.id;pendingBuy=null;save();render();bump();toast(`兌換成功！已經換上「${it.name}」`)}},
+      h("span",{class:`rar ${it.r}`,text:it.r}),
+      Av(Object.assign({},p.wear,{[it.slot]:it.id}),"av",it.name),
+      h("span",{class:"nm",text:it.name}),h("span",{class:"st",text:txt}))}));
+  const ownedN=ITEMS.filter(i=>p.owned.includes(i.id)).length;
+  return h("div",{style:"display:flex;flex-direction:column;gap:16px"},
+    h("section",{class:"panel"},
+      h("div",{class:"profile"},Av(p.wear,"av",p.name+"的頭像"),
+        h("div",{},h("div",{class:"p-name",text:p.name}),h("div",{class:"muted",text:`${p.cls} 班 ${p.seat} 號`}),
+          h("div",{class:"p-stats"},h("span",{class:"pill gold",html:ICON_STAR+` 可用 ${p.points} 點`}),h("span",{class:"pill",text:`累積 ${p.earned} 點`}),
+            h("span",{class:"pill",html:ICON_TICKET+` 抽獎券 ${p.tickets}`}),h("span",{class:"pill",text:`收集 ${ownedN} / ${ITEMS.length}`})),
+          h("div",{class:"row",style:"margin-top:10px"},h("button",{class:"btn",text:"換其他同學登入",onclick:()=>{S.who=null;quiz=null;save();render()}}))))),
+    h("section",{class:"panel"},
+      h("div",{class:"row spread"},h("h2",{text:"換造型"}),h("span",{class:"small muted",text:"用點數兌換，或到「抽獎」抽限定款"})),
+      h("div",{class:"slots-tabs",role:"tablist"},...SLOTS.map(s=>h("button",{class:"slot-tab",role:"tab","aria-selected":s.id===styleSlot,onclick:()=>{styleSlot=s.id;pendingBuy=null;render()}},s.name))),
+      grid))}
+
+/* ---------- 抽獎 ---------- */
+const MACHINES=[
+  {id:"claw",name:"夾娃娃機",slots:["animal","acc"],desc:"夾出新的動物或配件"},
+  {id:"capsule",name:"扭蛋機",slots:["hair","bg"],desc:"轉出新的髮型或背景"},
+  {id:"chest",name:"寶箱",slots:["outfit"],desc:"打開就是一套新服裝"}];
+const PALETTE=["var(--g7)","var(--g8)","var(--g9)","var(--g12)","var(--sun)","#6cc3f0"];
+function machineArt(id,prizeColor){
+  if(id==="claw"){
+    const pl=h("div",{class:"plushes"},...[[6,0],[38,4],[72,0],[108,6],[142,0],[176,3],[206,0],[24,30],[90,32],[160,30]].map(([x,y],i)=>h("i",{style:`left:${x}px;bottom:${y}px;background:${PALETTE[i%PALETTE.length]}`})));
+    return h("div",{class:"claw-m"},h("div",{class:"claw-glass"},h("div",{class:"claw-rail"}),
+      h("div",{class:"claw"},h("div",{class:"cable"}),h("div",{class:"head"}),h("div",{class:"fingers"},h("i"),h("i")),h("div",{class:"caught",style:`background:${prizeColor}`})),pl),
+      h("div",{class:"claw-base"},h("div",{class:"chute"}),h("div",{class:"claw-btn"})))}
+  if(id==="capsule"){
+    const caps=[[12,90],[50,96],[92,92],[130,90],[30,58],[72,60],[112,56],[54,24],[96,28]].map(([x,y],i)=>h("i",{style:`left:${x}px;top:${y}px;--c:${PALETTE[i%PALETTE.length]}`}));
+    return h("div",{class:"gacha-m"},h("div",{class:"dome"},...caps),h("div",{class:"gbody"},h("div",{class:"knob"}),h("div",{class:"gslot"})),
+      h("div",{class:"cap-out",style:`--c:${prizeColor}`},h("i"),h("i")))}
+  return h("div",{class:"chest-m"},h("div",{class:"rays"}),h("div",{class:"chest"},h("div",{class:"lid"}),h("div",{class:"box"},h("i",{class:"lock"}))))}
+function Draw(){
+  const p=P();
+  return h("div",{style:"display:flex;flex-direction:column;gap:16px"},
+    h("section",{class:"panel"},
+      h("div",{class:"tickets-hero"},h("span",{class:"big-ticket",html:ICON_TICKET}),h("div",{},h("b",{text:p.tickets}),h("div",{class:"muted",text:"張抽獎券"})),
+        h("p",{class:"small muted",style:"flex:1;min-width:200px;margin:0",text:"每完成一次檢測（答對一半以上）得到 1 張，全部答對再多送 1 張。抽到已經有的造型，會自動換成點數。"})),
+      h("div",{class:"machines"},...MACHINES.map(m=>h("div",{class:"machine"},
+        h("div",{class:"mini"},h("div",{class:"scene",style:"width:240px;height:240px;transform:scale(.6);margin:-48px"},machineArt(m.id,"var(--sun)"))),
+        h("h3",{text:m.name}),h("p",{text:m.desc}),
+        h("button",{class:"btn primary",disabled:p.tickets<1,text:p.tickets<1?"沒有抽獎券":"抽一次（用 1 張）",onclick:()=>spin(m)})))),
+      h("p",{class:"odds",text:"機率：普通 55%・稀有 30%・超稀有 12%・傳說 3%"})))}
+function rollPrize(m){
+  const pool=ITEMS.filter(i=>m.slots.includes(i.slot)&&!i.free);
+  for(let k=0;k<20;k++){
+    let x=Math.random()*100,r="N";for(const[k2,v]of Object.entries(RAR)){if(x<v.w){r=k2;break}x-=v.w}
+    const c=pool.filter(i=>i.r===r);if(c.length)return c[Math.floor(Math.random()*c.length)]}
+  return pool[0]}
+function spin(m){
+  const p=P();if(p.tickets<1)return;
+  p.tickets--;const it=rollPrize(m);const dup=p.owned.includes(it.id);
+  if(dup){p.points+=RAR[it.r].refund}else p.owned.push(it.id);
+  save();updateHeader();
+  const col={N:"#8fa3b8",R:"#3b9ad9",SR:"#9a5cf0",SSR:"#e2477f"}[it.r];
+  const scene=h("div",{class:"scene"},machineArt(m.id,col));
+  const stage=h("div",{class:"stage",role:"dialog","aria-modal":"true","aria-label":m.name},h("h2",{text:m.name}),scene,h("p",{class:"muted",text:"轉轉轉……"}));
+  const wrap=h("div",{class:"stage-wrap"},stage);document.body.append(wrap);
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  requestAnimationFrame(()=>scene.classList.add("run"));
+  setTimeout(()=>{
+    const close=()=>{wrap.remove();render()};
+    const again=h("button",{class:"btn",text:p.tickets>0?`再抽一次（剩 ${p.tickets} 張）`:"沒有抽獎券了",disabled:p.tickets<1,onclick:()=>{wrap.remove();render();spin(m)}});
+    stage.replaceChildren(h("div",{class:"reveal",style:"display:flex;flex-direction:column;align-items:center;gap:10px"},
+      h("span",{class:`rar ${it.r}`,text:`${it.r}・${RAR[it.r].name}`}),
+      h("div",{class:it.r==="SR"||it.r==="SSR"?"glow":""},Av(Object.assign({},p.wear,{[it.slot]:it.id}),"av",it.name)),
+      h("h2",{text:it.name}),
+      h("p",{class:"muted",style:"margin:0",text:dup?`已經有這個造型了，換成 ${RAR[it.r].refund} 點！`:`新的${SLOTS.find(s=>s.id===it.slot).name}到手！`})),
+      h("div",{class:"row",style:"justify-content:center"},
+        dup?null:h("button",{class:"btn primary",text:"馬上換上",onclick:()=>{p.wear[it.slot]=it.id;save();wrap.remove();tab="style";styleSlot=it.slot;render()}}),
+        again,h("button",{class:"btn",text:"關閉",onclick:close})));
+    if(it.r==="SR"||it.r==="SSR")confetti();
+    const f=stage.querySelector(".btn.primary")||stage.querySelector(".btn");if(f)f.focus()},reduce?50:(m.id==="claw"?3200:m.id==="capsule"?3300:2900));
+  wrap.addEventListener("keydown",e=>{if(e.key==="Escape"&&stage.querySelector(".reveal")){wrap.remove();render()}})}
+
+/* ---------- results & send to teacher ---------- */
+function Results(){
+  const p=P();const n=quiz.qs.length;const max=quiz.qs.reduce((a,q)=>a+TYPES[q.type].pts,0);
+  if(!quiz.celebrated){quiz.celebrated=true;if(quiz.right/n>=.6)setTimeout(confetti,150)}
+  if(!quiz.rewarded){quiz.rewarded=true;
+    quiz.tickets=quiz.right*2>=n?(quiz.right===n?2:1):0;p.tickets+=quiz.tickets;
+    p.log.unshift({t:quiz.time,set:curSet().name,score:quiz.score,max,right:quiz.right,n});p.log=p.log.slice(0,30);save();updateHeader()}
+  const uniqWrong=[...new Map(quiz.wrongs.map(w=>[w.w,w])).values()];
+  return h("section",{class:"panel"},
+    h("h2",{text:quiz.right===n?"全部答對，太強了！":quiz.right/n>=.6?"做得好！繼續保持":"再練一下，下次會更好"}),
+    h("div",{class:"row",style:"align-items:baseline;gap:14px"},h("span",{class:"score-big",text:quiz.score}),h("span",{class:"muted",text:`/ ${max} 點 · 答對 ${quiz.right} / ${n} 題`})),
+    h("div",{class:"reward"},h("span",{html:ICON_TICKET}),
+      h("div",{},h("strong",{text:quiz.tickets?`獲得 ${quiz.tickets} 張抽獎券`:"這次沒有拿到抽獎券"}),
+        h("span",{class:"small muted",text:quiz.tickets===2?"全部答對，多送你一張！":quiz.tickets?"全部答對可以多拿一張":"答對一半以上就能拿到抽獎券，再試一次吧"})),
+      p.tickets?h("button",{class:"btn primary",text:"去抽獎",onclick:()=>{quiz=null;tab="draw";render()}}):null),
+    h("div",{class:"stat-grid"},...Object.entries(quiz.byType).map(([k,v])=>h("div",{class:"stat"},h("span",{class:"small muted",text:TYPES[k].name}),h("b",{text:`${v.ok} / ${v.n}`})))),
+    uniqWrong.length?h("div",{class:"review"},h("h3",{class:"small",text:"要再複習的單字（已加入複習清單）"}),...uniqWrong.map(w=>h("div",{class:"review-item"},spk(w.w),h("strong",{text:w.w}),h("span",{class:"muted",text:w.m})))):null,
+    h("div",{class:"row"},h("button",{class:"btn primary",text:"再測一次",onclick:()=>{quiz=null;startQuiz()}}),h("button",{class:"btn",text:"換題型",onclick:()=>{quiz=null;render()}}),h("button",{class:"btn",text:"回去學習",onclick:()=>{quiz=null;tab="learn";render()}})),
+    SendTeacher(max))}
+const modeName=()=>`${quiz.mode==="mix"?"綜合挑戰":TYPES[quiz.mode].name}${quiz.scope==="review"?"（複習清單）":""}`;
+const setName=()=>`${(GRADES.find(g=>g.id===S.grade)||{}).name}・${curSet().name}`;
+const detailLine=()=>quiz.log.map((r,i)=>`${i+1}.${r.ok?"✔":"✘"}${TYPES[r.type].name}｜${r.w}｜${r.given||"-"}${r.hint?"（提示）":""}`).join("\n");
+function buildReport(max,date){
+  const p=P();
+  return [`【單字檢測成績單】`,`日期：${date}`,`班級：${p.cls}　座號：${p.seat}　姓名：${p.name}`,`單字集：${setName()}`,`題型：${modeName()}`,
+    `得分：${quiz.score} / ${max} 點，答對 ${quiz.right} / ${quiz.qs.length} 題`,`----------`,detailLine()].join("\n")}
+function formLink(max,date){
+  if(!FORM.url)return null;const p=P(),e=FORM.entry;
+  const vals={date,cls:p.cls,seat:p.seat,name:p.name,set:setName(),mode:modeName(),score:`${quiz.score}/${max}`,right:`${quiz.right}/${quiz.qs.length}`,detail:detailLine().replace(/\n/g,"　／　")};
+  const q=Object.entries(vals).filter(([k])=>e[k]).map(([k,v])=>`${e[k]}=${encodeURIComponent(v)}`).join("&");
+  return FORM.url+(FORM.url.includes("?")?"&":"?")+"usp=pp_url&"+q}
+function SendTeacher(max){
+  const p=P();
+  const date=h("input",{id:"sendDate",type:"date",value:quiz.date||today(),onchange:e=>{quiz.date=e.target.value;refresh()}});
+  const ta=h("textarea",{id:"report",readonly:true,"aria-label":"成績單內容"});
+  const form=h("a",{class:"btn primary",target:"_blank",rel:"noopener",text:"交給老師（Google 表單）"});
+  const line=h("a",{class:"btn",target:"_blank",rel:"noopener",text:"用 LINE 傳送"});
+  const refresh=()=>{const d=date.value||today();const txt=buildReport(max,d);ta.value=txt;
+    const fl=formLink(max,d);if(fl)form.href=fl;
+    line.href="https://line.me/R/msg/text/?"+encodeURIComponent(txt)};
+  refresh();
+  const copy=h("button",{class:"btn",text:"複製成績單",onclick:()=>{
+    const fallback=()=>{ta.focus();ta.select();toast("已選取內容，請按 Ctrl+C（手機長按）複製")};
+    try{navigator.clipboard.writeText(ta.value).then(()=>toast("已複製，可以貼給老師"),fallback)}catch(e){fallback()}}});
+  return h("div",{class:"send"},
+    h("h3",{text:"交給老師"}),
+    h("div",{class:"send-who"},Av(p.wear,"av"),h("span",{text:label(p)}),h("label",{class:"row",for:"sendDate",style:"margin-left:auto"},"日期",date)),
+    FORM.url?h("p",{class:"small muted",style:"margin:0",text:"按下按鈕會打開老師的表單，資料已經自動填好，記得在表單裡按「提交」。"})
+      :h("p",{class:"note",text:"老師還沒設定成績收集表單。先用「複製成績單」或 LINE 傳給老師。"}),
+    ta,h("div",{class:"row"},FORM.url?form:null,copy,line))}
+/* ---------- sets ---------- */
+function parse(text){
+  return text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l&&!l.startsWith("#")).map(l=>{
+    let parts;
+    if(l.includes("\t"))parts=l.split("\t");
+    else{const i=l.search(/[,，]/);if(i<0)return null;const rest=l.slice(i+1);const j=rest.search(/[,，]/);
+      parts=j<0?[l.slice(0,i),rest]:[l.slice(0,i),rest.slice(0,j),rest.slice(j+1)]}
+    const[w,m,x=""]=parts.map(s=>(s||"").trim().replace(/^"|"$/g,""));
+    return w&&m&&/[a-z]/i.test(w)?{w,m,x}:null}).filter(Boolean)}
+function Sets(){
+  const gname=GRADES.find(g=>g.id===S.grade).name;const gs=gradeSets(S.grade);
+  const list=gs.length?h("div",{},...gs.map(s=>h("div",{class:"set-item"},
+    h("div",{},h("strong",{text:s.name}),h("div",{class:"small muted"},`${s.words.length} 個單字${s.id==="mixall"?"・自動整理":s.builtin?"・課本內建":"・自己匯入"}`,curSet()&&s.id===curSet().id?h("span",{class:"current",text:"　· 使用中"}):null)),
+    h("div",{class:"row"},
+      !(curSet()&&s.id===curSet().id)?h("button",{class:"btn",text:"使用",onclick:()=>{S.cur=s.id;quiz=null;save();render()}}):null,
+      !s.builtin?h("button",{class:"btn danger",text:pendingDelete===s.id?"確定刪除？":"刪除",onclick:()=>{
+        if(pendingDelete!==s.id){pendingDelete=s.id;render();return}
+        S.sets=S.sets.filter(x=>x.id!==s.id);pendingDelete=null;quiz=null;save();render();toast("已刪除單字集")}}):null)))):h("p",{class:"muted",text:"這個年級還沒有單字集，可以在下面匯入。"});
+  const gsel=h("select",{id:"setGrade"},...GRADES.map(g=>h("option",{value:g.id,selected:g.id===S.grade,text:g.name+(g.id==="1200"?"綜合練習":"")})));
+  const name=h("input",{id:"setName",placeholder:"例如：英文第三課"});
+  const ta=h("textarea",{id:"setText",placeholder:"apple,蘋果,I eat an apple every day.\nbrave,勇敢的,She is very brave."});
+  const info=h("span",{class:"small muted"});
+  ta.addEventListener("input",()=>{const n=parse(ta.value).length;info.textContent=ta.value.trim()?`讀到 ${n} 個單字`:""});
+  const file=h("input",{type:"file",accept:".csv,.txt,.tsv",hidden:true,id:"setFile",onchange:e=>{const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();r.onload=()=>{ta.value=r.result;if(!name.value)name.value=f.name.replace(/\.[^.]+$/,"");ta.dispatchEvent(new Event("input"))};r.readAsText(f,"utf-8")}});
+  return h("div",{style:"display:flex;flex-direction:column;gap:18px"},
+    h("section",{class:"panel"},h("h2",{text:`${gname}的單字集`}),list),
+    h("section",{class:"panel"},
+      h("h2",{text:"匯入其他單字集"}),
+      h("p",{class:"small muted",text:"七年級第 1–6 課、八年級第 3–6 課、九年級第 1–6 課已經內建。其他課或補充單字可以在這裡匯入，並選擇要放在哪個年級。"}),
+      h("p",{class:"small muted",text:"一行一個單字，依序是「英文, 中文, 例句」，例句可以不填。也可以直接從 Excel 或 Google 試算表複製三欄貼上。"}),
+      h("pre",{class:"format",text:"curious,好奇的,Cats are curious about everything.\nlibrary,圖書館,I study in the library after school.\nbrave,勇敢的"}),
+      h("div",{class:"two"},h("label",{class:"field"},"單字集名稱",name),h("label",{class:"field"},"放在哪個年級",gsel)),
+      h("label",{class:"field"},"單字內容",ta),
+      h("div",{class:"row spread"},
+        h("div",{class:"row"},h("label",{class:"btn",for:"setFile"},"選擇檔案（.csv / .txt）",file),info),
+        h("button",{class:"btn primary",text:"匯入",onclick:()=>{
+          const words=parse(ta.value);if(!words.length){toast("沒有讀到單字，請確認每行用逗號分開英文和中文");return}
+          const id="s"+Date.now();S.sets.push({id,grade:gsel.value,name:name.value.trim()||`自訂單字集 ${S.sets.length+1}`,words});S.grade=gsel.value;S.cur=id;quiz=null;save();
+          toast(`已匯入 ${words.length} 個單字`);tab="learn";render()}}))))}
+
+render();
+</script>
+</body></html>
