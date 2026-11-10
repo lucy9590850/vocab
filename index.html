@@ -604,7 +604,7 @@ function avatarSVG(wear,label,art){
 const ARTS=[{id:"flat",name:"原本"},{id:"sticker",name:"貼紙"},{id:"crayon",name:"蠟筆"},{id:"pixel",name:"像素"}];
 const curArt=()=>{try{return (P()&&P().art)||"flat"}catch(e){return "flat"}};
 function Av(wear,cls="av",label,art){
-  art=art||curArt();
+  art="flat";
   if(art!=="pixel")return h("span",{class:cls,html:avatarSVG(wear,label,art)});
   const N=40,c=h("canvas",{width:N,height:N,role:"img","aria-label":label||"角色頭像"});
   const img=new Image();img.onload=()=>{const x=c.getContext("2d");x.drawImage(img,0,0,N,N)};
@@ -1036,7 +1036,6 @@ function Style(){
           h("div",{class:"p-stats"},h("span",{class:"pill gold",html:ICON_STAR+` 可用 ${p.points} 點`}),h("span",{class:"pill",text:`累積 ${p.earned} 點`}),
             h("span",{class:"pill",html:ICON_TICKET+` 抽獎券 ${p.tickets}`}),h("span",{class:"pill",text:`收集 ${ownedN} / ${ITEMS.length}`})),
           CloudBox(p),
-          h("div",{class:"art-row"},h("span",{class:"small muted",text:"畫風"}),...ARTS.map(a=>h("button",{class:"art-btn","aria-pressed":curArt()===a.id,onclick:()=>{p.art=a.id;save();render()}},Av(p.wear,"av",a.name,a.id),h("span",{text:a.name})))),
           h("div",{class:"row",style:"margin-top:10px"},h("button",{class:"btn",text:"換其他同學登入",onclick:()=>{S.who=null;quiz=null;save();render()}}))))),
     h("section",{class:"panel"},
       h("div",{class:"view-tabs",role:"tablist"},
@@ -1186,7 +1185,7 @@ function History(){
 
 
 /* ---------- 雲端帳號（Google Apps Script）：只在 GitHub Pages 版本啟用 ---------- */
-const CLOUD={url:""};
+const CLOUD={url:"https://script.google.com/macros/s/AKfycby0ry9Na3OTlXCLYj3h015nNo7n40SzkUJHFtvUk0kBdkj0PufIMjHI_9pbTJul-v7skA/exec"};
 const CLOUD_ON=()=>!!CLOUD.url&&/\.github\.io$/i.test(location.hostname);
 let cloudState="idle",syncTimer=null;
 async function pinHash(id,pin){
