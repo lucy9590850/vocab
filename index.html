@@ -395,8 +395,42 @@ label.field{display:flex;flex-direction:column;gap:6px;font-weight:700}
 .dweller .you{position:absolute;top:-12px;z-index:1;background:var(--accent);color:var(--on-accent);font-size:.7rem;font-weight:800;padding:0 7px;border-radius:999px}
 .dweller:focus-visible{outline:3px solid var(--accent);outline-offset:4px;border-radius:12px}
 @keyframes bob{50%{transform:translateY(calc(var(--dy) - 4px))}}
-.pick-card{display:flex;align-items:center;gap:12px;background:var(--accent-soft);border-radius:16px;padding:10px 14px}
-.pick-card .av{width:56px;height:56px}
+.pick-card{display:flex;flex-direction:column;gap:10px;background:var(--accent-soft);border-radius:16px;padding:12px 14px}
+.pick-info{display:flex;align-items:center;gap:12px}
+.pick-info .av{width:56px;height:56px}
+.picker{display:flex;flex-direction:column;gap:10px;align-items:flex-start;background:var(--surface);border-radius:14px;padding:12px;width:100%}
+.phrases{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;width:100%}
+.phrase{display:flex;align-items:center;gap:6px;min-width:0}
+.phrase .icon-btn{width:34px;height:34px}
+.ph-send{font:inherit;flex:1;min-width:0;text-align:left;display:flex;flex-direction:column;gap:0;padding:7px 12px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;box-shadow:0 2px 0 var(--line)}
+.ph-send:hover{border-color:var(--accent)}
+.ph-send b{font-family:"Baloo 2",var(--body);font-size:1rem;line-height:1.3}
+.ph-send span{font-size:.8rem;color:var(--muted)}
+.moves{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}
+.move{font:inherit;display:flex;flex-direction:column;align-items:center;gap:0;padding:8px 4px;border-radius:14px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;box-shadow:0 3px 0 var(--line)}
+.move:hover:not(:disabled){border-color:var(--accent);transform:translateY(-2px)}
+.mv-e{font-size:1.9rem;line-height:1.2}
+.move b{font-family:"Baloo 2",var(--body)}.move span:last-child{font-size:.78rem;color:var(--muted)}
+.small-moves .mv-e{font-size:1.5rem}
+.bubble{position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);z-index:2;background:#fff;color:#3b2a1e;border:2px solid #3b2a1e;border-radius:12px;padding:2px 8px;font-family:"Baloo 2",var(--body);font-weight:700;font-size:.74rem;line-height:1.25;width:max-content;max-width:120px;white-space:normal;cursor:pointer;animation:pop .35s}
+.bubble::after{content:"";position:absolute;left:50%;top:100%;margin-left:-5px;border:5px solid transparent;border-top-color:#3b2a1e}
+.bubble small{font-weight:500;color:#8a6d58}
+.plaza-scene .ground{row-gap:44px!important;padding:44px 20px 20px!important}
+.msgs{display:flex;flex-direction:column;gap:8px}
+.msg{border-radius:14px;padding:10px 12px;background:var(--sunk);display:flex;flex-direction:column;gap:6px}
+.msg.in{background:var(--accent-soft)}
+.msg.hot{background:var(--gold-soft);border:2px solid var(--sun)}
+.msg.win{background:var(--ok-soft)}.msg.lose{background:var(--bad-soft)}
+.m-line{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;font-weight:700}
+.ago{color:var(--muted);font-weight:500;font-size:.78rem;white-space:nowrap}
+.m-say{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.m-say .icon-btn{width:32px;height:32px}
+.m-say b{font-family:"Baloo 2",var(--body);font-size:1.05rem}
+.m-replies{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip-btn{font:inherit;font-family:"Baloo 2",var(--body);font-weight:700;font-size:.85rem;padding:3px 12px;border-radius:999px;border:2px solid var(--accent);background:var(--surface);color:var(--accent);cursor:pointer}
+.chip-btn:hover:not(:disabled){background:var(--accent);color:var(--on-accent)}
+.m-rps{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:"Baloo 2",var(--body);font-size:1.05rem}
+.m-rps b{margin-left:auto;font-family:var(--round);font-weight:400}
 .boards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
 .board ol{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:r}
 .board li{display:flex;align-items:center;gap:8px;counter-increment:r;background:var(--sunk);border-radius:12px;padding:4px 10px 4px 6px}
@@ -710,6 +744,7 @@ function fixProfile(p){
   p.owned=Array.isArray(p.owned)?p.owned.filter(id=>ITEM[id]):[];STARTER.forEach(id=>{if(!p.owned.includes(id))p.owned.push(id)});
   p.wear=Object.assign({},DEFAULT_WEAR,p.wear||{});Object.keys(DEFAULT_WEAR).forEach(s=>{if(!p.owned.includes(p.wear[s]))p.wear[s]=DEFAULT_WEAR[s]});
   p.best=p.best||{};p.review=p.review||{};p.log=Array.isArray(p.log)?p.log:[];p.claimed=Array.isArray(p.claimed)?p.claimed:[];
+  p.rpsPaid=Array.isArray(p.rpsPaid)?p.rpsPaid:[];p.rpsDay=p.rpsDay||{};
   if(typeof p.quizCount!=="number")p.quizCount=p.log.filter(e=>e.right*2>=e.n).length;
   if(!ARTS_IDS.includes(p.art))p.art="flat";return p}
 const ARTS_IDS=["flat","sticker","crayon","pixel"];
@@ -797,6 +832,7 @@ function updateHeader(){
       h("span",{},h("span",{text:`★ ${p.points} 點`}),h("span",{text:`券 ${p.tickets} 張`})))))}
 function render(){
   const p=P();
+  if(tab!=="plaza"&&typeof stopFeed==="function")stopFeed();
   document.body.dataset.grade=S.grade;
   updateHeader();
   const wordTabs=tab==="learn"||tab==="quiz"||tab==="sets";
@@ -1292,7 +1328,7 @@ async function pinHash(id,pin){
   catch(e){let h=0;for(const c of src)h=(h*31+c.charCodeAt(0))|0;return "x"+(h>>>0).toString(16)}}
 const cloudGet=params=>fetch(CLOUD.url+"?"+new URLSearchParams(params)).then(r=>r.json());
 const cloudPost=obj=>fetch(CLOUD.url,{method:"POST",body:JSON.stringify(obj)}).then(r=>r.json());
-const PKEYS=["points","earned","tickets","owned","wear","art","best","review","log","claimed","created","quizCount"];
+const PKEYS=["points","earned","tickets","owned","wear","art","best","review","log","claimed","created","quizCount","rpsPaid","rpsDay"];
 function packProfile(p){const d={};PKEYS.forEach(k=>d[k]=p[k]);d.log=(p.log||[]).slice(0,20).map(e=>{const x=Object.assign({},e);delete x.report;return x});return d}
 function plazaInfo(p){return {w:p.wear,a:p.art,o:p.owned.length,t:(p.log||[]).map(x=>x.id).filter(Boolean).slice(0,30)}}
 function applyCloud(p,r){
@@ -1358,7 +1394,7 @@ function Plaza(){
   if(!CLOUD_ON())return wrap(h("span",{class:"badge",text:"廣"}),h("h2",{text:"教室廣場還沒開放"}),
     h("p",{class:"muted",text:/\.github\.io$/i.test(location.hostname)?"老師還沒開啟雲端功能，開啟後全班的角色都會出現在這裡。":"請用老師給的網站網址（github.io）開啟，才能進入教室廣場。"}));
   if(!p.pinH)return h("section",{class:"panel"},h("h2",{text:"先開啟雲端備份"}),h("p",{class:"muted",style:"margin:0",text:"設定密碼後，你的角色就會出現在廣場上，也能看到同學的角色。"}),CloudBox(p));
-  loadPlaza();
+  loadPlaza();startFeed();
   if(!plazaData)return wrap(h("span",{class:"badge",text:"…"}),h("h2",{text:plazaErr?"讀取失敗":"正在走進廣場……"}),
     plazaErr?h("p",{class:"muted",text:plazaErr}):null,plazaErr?h("button",{class:"btn primary",text:"再試一次",onclick:()=>{loadPlaza(true);render()}}):null);
   if(plazaCls===null)plazaCls=p.cls;
@@ -1372,22 +1408,136 @@ function Plaza(){
   const board=(title,key,unit)=>{const t=top(key);return h("div",{class:"board"},h("h3",{text:title}),
     t.length?h("ol",{},...t.map(x=>h("li",{class:x.me?"me":""},Av(x.w,"av",x.n,x.a),h("span",{class:"bn",text:`${plazaCls?"":x.c+" "}${x.s} 號 ${x.n}`}),h("b",{text:`${x[key]} ${unit}`})))):h("p",{class:"small muted",text:"還沒有人上榜，快去練習！"}))};
   const pick=plazaPick&&shown.find(x=>x.c===plazaPick.c&&String(x.s)===String(plazaPick.s));
+  const bub={};(feed&&feed.bubbles||[]).forEach(b=>{bub[b.f]=b});
   const scene=h("div",{class:"plaza-scene"},
     h("div",{class:"sky"},h("i",{class:"sun"}),h("i",{class:"cloud c1"}),h("i",{class:"cloud c2"}),h("i",{class:"tree t1"}),h("i",{class:"tree t2"}),h("i",{class:"tree t3"})),
     h("div",{class:"ground"},...(shown.length?shown.map(x=>{const r=seatHash(x.c+x.s);
-      return h("button",{class:"dweller"+(x.me?" me":"")+(pick===x?" picked":""),style:`--dy:${(r%5)*4-8}px;--dl:${(r%10)/5}s`,"aria-label":`${x.c} 班 ${x.s} 號 ${x.n}`,onclick:()=>{plazaPick=pick===x?null:x;render()}},
+      return h("button",{class:"dweller"+(x.me?" me":"")+(pick===x?" picked":""),style:`--dy:${(r%5)*4-8}px;--dl:${(r%10)/5}s`,"aria-label":`${x.c} 班 ${x.s} 號 ${x.n}`,onclick:()=>{plazaPick=pick===x?null:x;socialMode=null;render()}},
+        bub[x.c+"-"+x.s]?Bubble(bub[x.c+"-"+x.s]):null,
         x.me?h("span",{class:"you",text:"你"}):null,Av(x.w,"av",x.n,x.a),h("span",{class:"tag",text:`${x.s} ${x.n}`}))}):[h("p",{class:"muted",text:"這個班級還沒有人進來廣場。"})])));
   return h("div",{style:"display:flex;flex-direction:column;gap:16px"},
     h("section",{class:"panel"},
       h("div",{class:"row spread"},h("h2",{text:"教室廣場"}),
         h("button",{class:"btn",style:"padding:5px 12px",text:plazaLoading?"更新中……":"重新整理",disabled:plazaLoading,onclick:()=>{loadPlaza(true);render()}})),
-      h("div",{class:"slots-tabs",role:"tablist"},h("button",{class:"slot-tab",role:"tab","aria-selected":plazaCls==="",onclick:()=>{plazaCls="";plazaPick=null;render()}},"全部"),
-        ...classes.map(c=>h("button",{class:"slot-tab",role:"tab","aria-selected":plazaCls===c,onclick:()=>{plazaCls=c;plazaPick=null;render()}},`${c} 班`))),
+      h("div",{class:"slots-tabs",role:"tablist"},h("button",{class:"slot-tab",role:"tab","aria-selected":plazaCls==="",onclick:()=>{plazaCls="";plazaPick=null;socialMode=null;feedSig="";render();pollFeed(true)}},"全部"),
+        ...classes.map(c=>h("button",{class:"slot-tab",role:"tab","aria-selected":plazaCls===c,onclick:()=>{plazaCls=c;plazaPick=null;socialMode=null;feedSig="";render();pollFeed(true)}},`${c} 班`))),
       scene,
-      pick?h("div",{class:"pick-card"},Av(pick.w,"av",pick.n,pick.a),h("div",{},h("strong",{text:`${pick.c} 班 ${pick.s} 號 ${pick.n}`}),
-        h("div",{class:"small muted",text:`收集 ${pick.o} / ${ITEMS.length} 件・本週練習 ${pick.q} 次`}))):
+      pick?PickCard(pick):
         h("p",{class:"small muted",style:"margin:0",text:`共 ${shown.length} 位同學。點角色可以看他的收集。交成績或換造型後，幾分鐘內就會更新。`})),
+    Inbox(),
     h("section",{class:"panel boards"},board("本週最用功","q","次"),board("收藏家","o","件")))}
+
+
+/* ---------- 廣場互動：預設英文句子＋猜拳挑戰 ---------- */
+const PHRASES={
+  hello:{en:"Hello!",zh:"你好！",re:["hello","nicetomeet","howru"]},
+  morning:{en:"Good morning!",zh:"早安！",re:["morning","howru"]},
+  nicetomeet:{en:"Nice to meet you!",zh:"很高興認識你！",re:["youtoo"]},
+  howru:{en:"How are you?",zh:"你好嗎？",re:["fine","great","notbad"]},
+  fine:{en:"I'm fine, thank you.",zh:"我很好，謝謝。",re:["good"]},
+  great:{en:"I'm great!",zh:"我很棒！",re:["good"]},
+  notbad:{en:"Not bad.",zh:"還不錯。",re:["keepgoing"]},
+  good:{en:"Good to hear!",zh:"真高興聽到！",re:["thanks"]},
+  outfit:{en:"I like your outfit!",zh:"我喜歡你的造型！",re:["thanks","youtoo"]},
+  goodjob:{en:"Good job!",zh:"做得好！",re:["thanks"]},
+  keepgoing:{en:"Keep going!",zh:"繼續加油！",re:["thanks","youtoo"]},
+  study:{en:"Let's study together!",zh:"一起讀書吧！",re:["sure","ok"]},
+  help:{en:"Can you help me?",zh:"可以幫我嗎？",re:["sure","ok"]},
+  play:{en:"Let's play rock, paper, scissors!",zh:"來猜拳吧！",re:["sure","ok"]},
+  sure:{en:"Sure!",zh:"當然好！",re:["thanks"]},
+  ok:{en:"OK!",zh:"好啊！",re:["thanks"]},
+  thanks:{en:"Thank you!",zh:"謝謝你！",re:["welcome"]},
+  welcome:{en:"You're welcome.",zh:"不客氣。",re:[]},
+  youtoo:{en:"You too!",zh:"你也是！",re:[]},
+  bye:{en:"See you!",zh:"再見！",re:["bye"]}};
+const START_PHRASES=["hello","morning","howru","nicetomeet","outfit","goodjob","keepgoing","study","help","play","bye"];
+const SHOUT_PHRASES=["hello","morning","study","keepgoing","bye"];
+const MOVE={rock:{zh:"石頭",en:"Rock",e:"✊"},paper:{zh:"布",en:"Paper",e:"✋"},scissors:{zh:"剪刀",en:"Scissors",e:"✌️"}};
+const RPS_DAILY=3,RPS_PTS=10;
+let feed=null,feedTimer=null,feedBusy=false,feedSig="",socialMode=null,sending=false;
+const agoText=t=>{const s=(Date.now()-t)/1000;return s<60?"剛剛":s<3600?`${Math.floor(s/60)} 分鐘前`:`${Math.floor(s/3600)} 小時前`};
+function stopFeed(){clearInterval(feedTimer);feedTimer=null}
+function startFeed(){if(feedTimer)return;setTimeout(pollFeed,0);feedTimer=setInterval(pollFeed,12000)}
+function pollFeed(force){
+  const p=P();
+  if(!CLOUD_ON()||!p||!p.pinH||tab!=="plaza"){stopFeed();return}
+  if(!force&&document.visibilityState!=="visible")return;
+  if(feedBusy)return;feedBusy=true;
+  cloudGet({action:"feed",id:S.who,pin:p.pinH,cls:plazaCls||""}).then(r=>{
+    if(!r.ok)return;feed=r;creditRps();
+    const sig=JSON.stringify([r.me,r.bubbles.map(b=>b.i),r.mine.map(m=>m.i+(m.s||""))]);
+    if(sig!==feedSig&&tab==="plaza"){feedSig=sig;render()}})
+    .catch(()=>{}).finally(()=>{feedBusy=false})}
+function creditRps(){
+  const p=P();if(!p||!feed)return;
+  p.rpsPaid=Array.isArray(p.rpsPaid)?p.rpsPaid:[];
+  if(!p.rpsDay||p.rpsDay.d!==today())p.rpsDay={d:today(),n:0};
+  let changed=false;
+  feed.mine.forEach(m=>{if(m.k!=="rps"||m.s!=="done"||!m.r||m.r.w!==S.who||p.rpsPaid.includes(m.i))return;
+    p.rpsPaid.push(m.i);changed=true;
+    if(p.rpsDay.n<RPS_DAILY){p.rpsDay.n++;p.points+=RPS_PTS;p.earned+=RPS_PTS;toast(`猜拳贏了 ${m.f===S.who?m.tn:m.fn}！+${RPS_PTS} 點`);bump()}
+    else toast("猜拳贏了！今天的猜拳點數已經拿滿，明天再來")});
+  if(changed){p.rpsPaid=p.rpsPaid.slice(-200);save();updateHeader()}}
+const socialErr=e=>({slow:"說太快了，等 3 秒再試一次",auth:"身分驗證失敗，請到「造型」頁按「立即同步」",state:"這個挑戰已經結束了",to:"找不到這位同學",notfound:"找不到這個挑戰"}[e]||"沒有送出，請再試一次");
+function socialSend(obj,okMsg){
+  if(sending)return;sending=true;
+  return cloudPost(Object.assign({id:S.who,pin:P().pinH},obj)).then(r=>{
+    if(r.ok){socialMode=null;if(okMsg)toast(typeof okMsg==="function"?okMsg(r):okMsg);render();pollFeed(true)}else toast(socialErr(r.error));return r})
+    .catch(()=>toast("連不到雲端，請檢查網路")).finally(()=>{sending=false})}
+const sendSay=(to,k)=>{say(PHRASES[k].en);return socialSend({action:"say",to,phrase:k},`你說：${PHRASES[k].en}`)};
+const sendRps=(to,name,mv)=>socialSend({action:"rps",to,move:mv},`已經向 ${name} 發出猜拳挑戰！等對方出拳`);
+const answerRps=(cid,mv)=>socialSend({action:"rpsAnswer",cid,move:mv},r=>r.w==="draw"?"平手！":r.w===S.who?"你贏了！":"你輸了，下次再加油！");
+function Bubble(b){const ph=PHRASES[b.p];if(!ph)return null;
+  return h("span",{class:"bubble",title:ph.zh,onclick:e=>{e.stopPropagation();say(ph.en)}},b.to?h("small",{text:`@${b.tn||""} `}):null,ph.en)}
+function PhrasePicker(m){
+  return h("div",{class:"picker"},
+    h("div",{class:"small muted",text:m.to?`選一句話對 ${m.name} 說（點喇叭可以先聽）：`:"選一句話對大家說："}),
+    h("div",{class:"phrases"},...m.list.map(k=>h("div",{class:"phrase"},
+      h("button",{class:"ph-send",disabled:sending,onclick:()=>sendSay(m.to,k)},h("b",{text:PHRASES[k].en}),h("span",{text:PHRASES[k].zh})),
+      spk(PHRASES[k].en,"聽發音")))),
+    h("button",{class:"btn",text:"取消",onclick:()=>{socialMode=null;render()}}))}
+function RpsPicker(m){
+  return h("div",{class:"picker"},
+    h("div",{class:"small muted",text:`向 ${m.name} 發出猜拳挑戰。你先出拳，對方上線時會回應：`}),
+    h("div",{class:"moves"},...Object.entries(MOVE).map(([k,v])=>h("button",{class:"move",disabled:sending,onclick:()=>{say(v.en);sendRps(m.to,m.name,k)}},h("span",{class:"mv-e",text:v.e}),h("b",{text:v.en}),h("span",{text:v.zh})))),
+    h("button",{class:"btn",text:"取消",onclick:()=>{socialMode=null;render()}}))}
+function PickCard(x){
+  const id=`${x.c}-${x.s}`,ready=feed&&feed.me;
+  const info=h("div",{class:"pick-info"},Av(x.w,"av",x.n,x.a),h("div",{},h("strong",{text:`${x.c} 班 ${x.s} 號 ${x.n}${x.me?"（你）":""}`}),
+    h("div",{class:"small muted",text:`收集 ${x.o} / ${ITEMS.length} 件・本週練習 ${x.q} 次`})));
+  const acts=!ready?h("p",{class:"small muted",style:"margin:0",text:"連上雲端後就能跟同學互動。"}):x.me
+    ?h("div",{class:"row"},h("button",{class:"btn",text:"對大家說一句話",onclick:()=>{socialMode={k:"say",to:"",list:SHOUT_PHRASES};render()}}))
+    :h("div",{class:"row"},h("button",{class:"btn primary",text:"打招呼",onclick:()=>{socialMode={k:"say",to:id,list:START_PHRASES,name:x.n};render()}}),
+      h("button",{class:"btn",text:"猜拳挑戰",onclick:()=>{socialMode={k:"rps",to:id,name:x.n};render()}}));
+  const mine=socialMode&&socialMode.to===(x.me?"":id);
+  return h("div",{class:"pick-card"},info,acts,mine?(socialMode.k==="say"?PhrasePicker(socialMode):RpsPicker(socialMode)):null)}
+function MsgRow(m){
+  const me=S.who,ago=h("span",{class:"ago",text:agoText(m.t)});
+  if(m.k==="say"){const ph=PHRASES[m.p]||{en:m.p,zh:"",re:[]};
+    const line=h("div",{class:"m-line"},h("span",{class:"m-who",text:m.f===me?`你 → ${m.to?m.tn:"大家"}`:`${m.fn} → 你`}),ago);
+    const body=h("div",{class:"m-say"},spk(ph.en,"聽發音"),h("b",{text:ph.en}),h("span",{class:"muted",text:ph.zh}));
+    const replies=m.f!==me&&ph.re.length?h("div",{class:"m-replies"},h("span",{class:"small muted",text:"回覆："}),
+      ...ph.re.map(k=>h("button",{class:"chip-btn",disabled:sending,title:PHRASES[k].zh,onclick:()=>sendSay(m.f,k)},PHRASES[k].en))):null;
+    return h("div",{class:"msg "+(m.f===me?"out":"in")},line,body,replies)}
+  if(m.s==="open"&&m.to===me)return h("div",{class:"msg rps hot"},h("div",{class:"m-line"},h("span",{class:"m-who",text:`${m.fn} 向你挑戰猜拳！`}),ago),
+    h("div",{class:"moves small-moves"},...Object.entries(MOVE).map(([k,v])=>h("button",{class:"move",disabled:sending,onclick:()=>{say(v.en);answerRps(m.i,k)}},h("span",{class:"mv-e",text:v.e}),h("b",{text:v.en}),h("span",{text:v.zh})))));
+  if(m.s==="open")return h("div",{class:"msg rps"},h("div",{class:"m-line"},h("span",{class:"m-who",text:`你向 ${m.tn} 發出挑戰`}),ago),
+    h("p",{class:"small muted",style:"margin:0",text:`你出 ${MOVE[m.my]?MOVE[m.my].e+" "+MOVE[m.my].en:""}，等對方回應……`}));
+  if(!m.r)return null;
+  const mineFirst=m.f===me,myMv=MOVE[mineFirst?m.r.m1:m.r.m2],otMv=MOVE[mineFirst?m.r.m2:m.r.m1],ot=mineFirst?m.tn:m.fn;
+  const res=m.r.w==="draw"?"平手！":m.r.w===me?"你贏了！":"你輸了";
+  return h("div",{class:"msg rps "+(m.r.w===me?"win":m.r.w==="draw"?"":"lose")},h("div",{class:"m-line"},h("span",{class:"m-who",text:`猜拳：你 vs ${ot}`}),ago),
+    h("div",{class:"m-rps"},h("span",{text:`${myMv.e} ${myMv.en}`}),h("span",{class:"muted",text:"vs"}),h("span",{text:`${otMv.e} ${otMv.en}`}),h("b",{text:res})))}
+function Inbox(){
+  const head=t=>h("div",{class:"row spread"},h("h2",{text:"我的訊息"}),t);
+  if(!feed)return h("section",{class:"panel inbox"},head(null),h("p",{class:"small muted",style:"margin:0",text:"讀取中……"}));
+  if(!feed.me)return h("section",{class:"panel inbox"},head(null),h("p",{class:"small muted",style:"margin:0",text:"你的雲端帳號還在同步，等一下就能和同學互動。如果一直出現這個訊息，到「造型」頁按「立即同步」。"}));
+  const items=feed.mine.filter(m=>!(m.k==="say"&&!m.to&&m.f!==S.who));
+  const pend=items.filter(m=>m.k==="rps"&&m.s==="open"&&m.to===S.who).length;
+  const p=P(),left=Math.max(0,RPS_DAILY-((p.rpsDay&&p.rpsDay.d===today())?p.rpsDay.n:0));
+  return h("section",{class:"panel inbox"},head(pend?h("span",{class:"pill gold",text:`${pend} 個挑戰等你回應`}):null),
+    h("p",{class:"small muted",style:"margin:0",text:`猜拳贏了 +${RPS_PTS} 點，今天還能拿 ${left} 次。對話只能從英文句子選，順便練習說英文！`}),
+    items.length?h("div",{class:"msgs"},...items.slice(0,15).map(MsgRow)):h("p",{class:"small muted",style:"margin:0",text:"還沒有訊息。點廣場上的同學，跟他打招呼或挑戰猜拳吧！"}))}
 
 /* ---------- sets ---------- */
 function parse(text){
