@@ -244,7 +244,7 @@ label.field{display:flex;flex-direction:column;gap:6px;font-weight:700}
 .item.locked .av{filter:grayscale(1) brightness(.85);opacity:.55}
 .item.confirm{border-color:var(--sun);background:var(--gold-soft)}
 .rar{position:absolute;top:6px;left:6px;font-family:"Baloo 2",var(--body);font-weight:800;font-size:.66rem;line-height:1;padding:3px 6px;border-radius:6px;color:#fff}
-.rar.N{background:#8fa3b8}.rar.R{background:#3b9ad9}.rar.SR{background:#9a5cf0}.rar.SSR{background:linear-gradient(90deg,#f0712c,#e2477f,#9a5cf0)}
+.rar.N{background:#8fa3b8}.rar.R{background:#3b9ad9}.rar.SR{background:#9a5cf0}.rar.SSR{background:linear-gradient(90deg,#f0712c,#e2477f,#9a5cf0)}.rar.UR{background:repeating-linear-gradient(135deg,#b5262c 0 5px,#1f1a1a 5px 7px,#b5262c 7px 12px);box-shadow:0 0 0 1.5px #f2c14e}
 
 /* draw tab */
 .tickets-hero{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
@@ -408,6 +408,22 @@ label.field{display:flex;flex-direction:column;gap:6px;font-weight:700}
 @media (max-width:440px){nav button{font-size:.86rem;padding:8px 0}}
 @media (prefers-reduced-motion:reduce){.dweller,.plaza-scene .cloud{animation:none}}
 
+/* atayal + seasons */
+.glow.ur::before{background:conic-gradient(from 0deg,#b5262c,transparent 20%,#f2c14e 40%,transparent 60%,#b5262c 80%,transparent)}
+.culture-note{margin:0;max-width:30ch;font-size:.88rem;color:var(--ink);background:var(--gold-soft);border-radius:12px;padding:8px 12px;text-align:left}
+details.culture{width:100%;text-align:left}
+details.culture summary{cursor:pointer;font-size:.72rem;font-weight:700;color:#b5262c;text-align:center}
+details.culture p{margin:4px 0 0;font-size:.72rem;line-height:1.5;color:var(--ink)}
+.item.book.atayal{border-color:#e7b4a8}
+.season{border-color:var(--sun);background:linear-gradient(var(--gold-soft),var(--surface) 90px)}
+.season.off{background:var(--surface);border-color:var(--line)}
+.season-in{display:flex;flex-direction:column;gap:10px}
+.season-items{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.s-item{flex:none;width:92px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;font-weight:700;font-size:.85rem}
+.s-item .av{width:64px;height:64px}
+.s-item small{font-weight:500;color:var(--muted);font-size:.7rem}
+.s-item.got .av{box-shadow:0 0 0 3px var(--ok)}
+
 /* reward + send */
 .reward{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--gold-soft);border:2px solid var(--sun);border-radius:18px;padding:12px 14px}
 .reward svg{width:42px;height:42px;color:var(--gold);flex:none}
@@ -483,9 +499,15 @@ const BUILTIN=[...LESSONS7,ALL7,...LESSONS,ALL8,...LESSONS9,ALL9];
 const INK="#2b1d14";
 const SH="M12 124 C14 100 34 91 60 91 C86 91 106 100 108 124Z";
 const mir=(d)=>d; // helper placeholder for readability
-const RAR={N:{name:"普通",refund:30,w:55},R:{name:"稀有",refund:60,w:30},SR:{name:"超稀有",refund:120,w:12},SSR:{name:"傳說",refund:200,w:3}};
+const RAR={N:{name:"普通",refund:30,w:55},R:{name:"稀有",refund:60,w:30},SR:{name:"超稀有",refund:120,w:12},SSR:{name:"傳說",refund:200,w:2},UR:{name:"極稀有",refund:300,w:1}};
 const PRICE={N:120,R:250,SR:450};
-const SLOTS=[{id:"animal",name:"動物"},{id:"hair",name:"髮型"},{id:"outfit",name:"服裝"},{id:"acc",name:"配件"},{id:"bg",name:"背景"}];
+const SLOTS=[{id:"animal",name:"動物"},{id:"hair",name:"髮型"},{id:"outfit",name:"服裝"},{id:"acc",name:"配件"},{id:"face",name:"臉部"},{id:"bg",name:"背景"}];
+/* 季節限定：每年固定期間開放（月-日） */
+const SEASONS={halloween:{name:"萬聖節",from:"10-15",to:"11-15"},xmas:{name:"聖誕節",from:"12-01",to:"12-31"},cny:{name:"春節",from:"01-15",to:"02-28"},dragon:{name:"端午節",from:"05-20",to:"06-20"},moon:{name:"中秋節",from:"09-01",to:"09-30"}};
+const mmdd=()=>{const d=new Date();return String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const seasonOpen=id=>{const z=SEASONS[id],t=mmdd();return !!z&&t>=z.from&&t<=z.to};
+const seasonLabel=id=>{const z=SEASONS[id];return `${z.name}限定（${z.from.replace("-","/")}–${z.to.replace("-","/")}）`};
+const obtainable=it=>!it.free&&(!it.season||seasonOpen(it.season));
 /* item: id, slot, name, r (rarity), free, gacha (only from draws) */
 const ITEMS=[
  // animals
@@ -570,16 +592,63 @@ const ITEMS=[
  {id:"lilac",slot:"bg",name:"薰衣草",r:"R",draw:'<rect width="120" height="120" fill="#d9c8ff"/>'},
  {id:"polka",slot:"bg",name:"點點",r:"R",draw:'<rect width="120" height="120" fill="#bfe9f5"/><g fill="#fff" opacity=".8"><circle cx="16" cy="18" r="5"/><circle cx="46" cy="10" r="4"/><circle cx="100" cy="20" r="5"/><circle cx="12" cy="56" r="4"/><circle cx="106" cy="60" r="4"/><circle cx="24" cy="94" r="5"/><circle cx="98" cy="96" r="5"/></g>'},
  {id:"night",slot:"bg",name:"星空",r:"SR",gacha:1,draw:'<rect width="120" height="120" fill="#2d2a5a"/><g fill="#ffe7a0"><circle cx="18" cy="22" r="1.8"/><circle cx="96" cy="16" r="2.2"/><circle cx="104" cy="52" r="1.5"/><circle cx="12" cy="66" r="1.5"/><circle cx="30" cy="10" r="1.2"/><circle cx="84" cy="34" r="1.2"/></g><circle cx="98" cy="22" r="9" fill="#ffe7a0"/><circle cx="103" cy="19" r="8" fill="#2d2a5a"/>'},
- {id:"rainbowbg",slot:"bg",name:"彩虹",r:"SSR",gacha:1,draw:'<rect width="120" height="120" fill="#fff4e0"/><g fill="none" stroke-width="7"><circle cx="60" cy="120" r="96" stroke="#ff7a7a"/><circle cx="60" cy="120" r="89" stroke="#ffb35c"/><circle cx="60" cy="120" r="82" stroke="#ffe066"/><circle cx="60" cy="120" r="75" stroke="#7ad99a"/><circle cx="60" cy="120" r="68" stroke="#6cc3f0"/><circle cx="60" cy="120" r="61" stroke="#a594ff"/></g>'}
+ {id:"rainbowbg",slot:"bg",name:"彩虹",r:"SSR",gacha:1,draw:'<rect width="120" height="120" fill="#fff4e0"/><g fill="none" stroke-width="7"><circle cx="60" cy="120" r="96" stroke="#ff7a7a"/><circle cx="60" cy="120" r="89" stroke="#ffb35c"/><circle cx="60" cy="120" r="82" stroke="#ffe066"/><circle cx="60" cy="120" r="75" stroke="#7ad99a"/><circle cx="60" cy="120" r="68" stroke="#6cc3f0"/><circle cx="60" cy="120" r="61" stroke="#a594ff"/></g>'},
+ // ----- 臉部 -----
+ {id:"f-none",slot:"face",name:"不畫",r:"N",free:1,draw:""},
+ {id:"mustache",slot:"face",name:"小鬍子",r:"N",draw:'<path d="M50 70 Q55 66 60 69 Q65 66 70 70 Q66 74 60 71 Q54 74 50 70Z" fill="#3b2a1e"/>'},
+ {id:"starface",slot:"face",name:"星星臉貼",r:"R",draw:'<path d="M39 66 l1.6 3.3 3.6.5 -2.6 2.5.6 3.6 -3.2-1.7 -3.2 1.7.6-3.6 -2.6-2.5 3.6-.5Z" fill="#ffd166"/><path d="M81 66 l1.6 3.3 3.6.5 -2.6 2.5.6 3.6 -3.2-1.7 -3.2 1.7.6-3.6 -2.6-2.5 3.6-.5Z" fill="#ff8fb1"/>'},
+ // ----- 泰雅族（UR 極稀有） -----
+ {id:"ptasan-m",slot:"face",name:"紋面・勇士",r:"UR",gacha:1,atayal:1,
+  note:"泰雅語稱紋面為 ptasan。傳統上，男子要證明狩獵能力、能夠守護部落，才能在額頭和下巴紋面，是勇敢與成年的象徵。",
+  draw:'<g stroke="#2f3b5c" stroke-width="1.7" stroke-linecap="round" opacity=".85" fill="none"><path d="M57 32 V48 M60 31 V49 M63 32 V48"/><path d="M54 78 V85 M57 78.5 V86.5 M60 79 V87 M63 78.5 V86.5 M66 78 V85"/></g>'},
+ {id:"ptasan-f",slot:"face",name:"紋面・織女",r:"UR",gacha:1,atayal:1,
+  note:"女子要學會織布、擁有好手藝，才能在額頭與兩頰紋上 V 字形的寬紋，代表能幹與美麗，也是成年的印記。",
+  draw:'<g stroke="#2f3b5c" stroke-width="1.5" stroke-linecap="round" opacity=".85" fill="none"><path d="M57 32 V46 M60 31 V47 M63 32 V46"/><path d="M34 57.0 L53.5 70.5 M86 57.0 L66.5 70.5 M34 59.4 L53.5 71.8 M86 59.4 L66.5 71.8 M34 61.8 L53.5 73.1 M86 61.8 L66.5 73.1 M34 64.2 L53.5 74.4 M86 64.2 L66.5 74.4"/></g>'},
+ {id:"atayal-wear",slot:"outfit",name:"泰雅織衣",r:"UR",gacha:1,atayal:1,clip:1,
+  note:"泰雅族以精湛的織布聞名。紅色布料上的菱形紋，常被說是「祖靈之眼」，守護穿著的人。",
+  draw:'<path d="'+SH+'" fill="#b5262c"/><g clip-path="url(#CID)"><rect x="0" y="100" width="120" height="14" fill="#1f1a1a"/><g fill="#fff">'
+   +[18,30,42,54,66,78,90,102].map(x=>`<path d="M${x} 107 l6 -6 6 6 -6 6Z"/>`).join("")
+   +'</g><g fill="#b5262c">'+[18,30,42,54,66,78,90,102].map(x=>`<path d="M${x+3} 107 l3 -3 3 3 -3 3Z"/>`).join("")
+   +'</g><rect x="0" y="97" width="120" height="2.5" fill="#f2c14e"/><rect x="0" y="114.5" width="120" height="2.5" fill="#f2c14e"/><path d="M57 91 L55 124 M63 91 L65 124" stroke="#1f1a1a" stroke-width="2.5"/></g>'},
+ {id:"slingshot",slot:"acc",name:"彈弓",r:"UR",gacha:1,atayal:1,
+  note:"在山林裡練習眼力與準度的小工具，也是部落孩子熟悉的童年玩具。",
+  draw:'<path d="M91 122 V104 M91 104 L84 92 M91 104 L98 92" stroke="#8a5a2a" stroke-width="4.5" stroke-linecap="round" fill="none"/><path d="M84 92 Q91 101 98 92" stroke="#c94a3a" stroke-width="2" fill="none"/><rect x="88" y="99" width="6" height="4" rx="1" fill="#6b4a2a"/>'},
+ {id:"trap",slot:"acc",name:"獵人陷阱",r:"UR",gacha:1,atayal:1,
+  note:"泰雅獵人依照山林知識設置陷阱，並遵守 gaga（祖訓）：只取需要的，不濫捕，與山林共生。",
+  draw:'<path d="M12 122 Q16 84 42 76" stroke="#8a6a3a" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M42 76 V96" stroke="#c9a26a" stroke-width="1.6"/><ellipse cx="42" cy="101" rx="7" ry="4" fill="none" stroke="#c9a26a" stroke-width="1.8"/><path d="M33 110 H51" stroke="#6b4a2a" stroke-width="3" stroke-linecap="round"/><path d="M36 110 V118 M48 110 V118" stroke="#6b4a2a" stroke-width="2.4" stroke-linecap="round"/>'},
+ {id:"atayal-bg",slot:"bg",name:"泰雅山林",r:"UR",gacha:1,atayal:1,
+  note:"泰雅族世居臺灣中北部的山區，會把收成的小米存放在架高的穀倉裡，防潮也防鼠。",
+  draw:'<rect width="120" height="120" fill="#cfe9f2"/><path d="M0 72 L22 50 L40 62 L62 38 L86 58 L104 44 L120 54 V120 H0Z" fill="#8fbca6"/><ellipse cx="60" cy="66" rx="70" ry="7" fill="#fff" opacity=".45"/><path d="M0 90 L28 68 L52 82 L80 64 L120 86 V120 H0Z" fill="#4f8a6e"/><g transform="translate(9 50)"><path d="M0 12 L11 2 L22 12Z" fill="#a8743a"/><rect x="3" y="12" width="16" height="9" fill="#c79a5c"/><path d="M5 21 V30 M17 21 V30" stroke="#6b4a2a" stroke-width="2"/><ellipse cx="5" cy="21.5" rx="3" ry="1.2" fill="#8a6a3a"/><ellipse cx="17" cy="21.5" rx="3" ry="1.2" fill="#8a6a3a"/></g><g fill="#3f7a5c"><path d="M96 70 l6 -14 6 14Z"/><path d="M104 74 l5 -12 5 12Z"/></g>'},
+ // ----- 季節限定：萬聖節 -----
+ {id:"pumpkin-hat",slot:"hair",name:"南瓜帽",r:"R",season:"halloween",draw:'<ellipse cx="60" cy="31" rx="23" ry="14" fill="#f28c28"/><path d="M48 19 Q46 31 48 44 M60 17 V45 M72 19 Q74 31 72 44" stroke="#d9721a" stroke-width="2" fill="none"/><path d="M60 17 Q60 10 65 8" stroke="#5a8a3a" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M52 30 l3 -4 3 4Z M62 30 l3 -4 3 4Z" fill="#3b2a1e"/>'},
+ {id:"vampire",slot:"outfit",name:"吸血鬼斗篷",r:"SR",season:"halloween",back:'<path d="M30 92 Q14 124 12 124 L108 124 Q106 124 90 92Z" fill="#7a1f2b"/>',draw:'<path d="'+SH+'" fill="#2b2236"/><path d="M34 93 L42 80 L60 95 L78 80 L86 93 L60 100Z" fill="#b5262c"/><circle cx="60" cy="104" r="3" fill="#ffd166"/>'},
+ {id:"bat-clip",slot:"acc",name:"蝙蝠髮夾",r:"R",season:"halloween",draw:'<path d="M80 34 Q74 26 68 30 Q72 31 72 35 Q76 33 80 37 Q84 33 88 35 Q88 31 92 30 Q86 26 80 34Z" fill="#3b2a4a"/><circle cx="78.5" cy="33" r=".9" fill="#ffd166"/><circle cx="81.5" cy="33" r=".9" fill="#ffd166"/>'},
+ {id:"halloween-bg",slot:"bg",name:"萬聖夜",r:"SR",season:"halloween",draw:'<rect width="120" height="120" fill="#3b2a5a"/><circle cx="94" cy="22" r="12" fill="#ffb347"/><g fill="#1d1430"><path d="M18 26 q4 -5 8 -1 q2 -3 4 0 q4 -4 8 1 q-6 0 -10 4 q-4 -4 -10 -4Z"/><path d="M60 14 q3 -4 6 -1 q1.5 -2 3 0 q3 -3 6 1 q-4.5 0 -7.5 3 q-3 -3 -7.5 -3Z"/></g>'},
+ // ----- 季節限定：聖誕節 -----
+ {id:"santa-hat",slot:"hair",name:"聖誕帽",r:"R",season:"xmas",draw:'<path d="M32 47 Q32 23 60 22 Q82 22 88 34 Q98 40 99 50" fill="#e5484d" stroke="#e5484d" stroke-width="2"/><path d="M32 47 Q32 23 60 22 Q84 22 88 47Z" fill="#e5484d"/><circle cx="99" cy="51" r="5.5" fill="#fff"/><rect x="29" y="42" width="62" height="9" rx="4.5" fill="#fff"/>'},
+ {id:"antlers",slot:"acc",name:"麋鹿角",r:"R",season:"xmas",draw:'<g stroke="#8a5a35" stroke-width="4" stroke-linecap="round" fill="none"><path d="M44 34 L38 16 M40 22 L31 18 M41 27 L33 29"/><path d="M76 34 L82 16 M80 22 L89 18 M79 27 L87 29"/></g>'},
+ {id:"xmas-sweater",slot:"outfit",name:"聖誕毛衣",r:"R",season:"xmas",clip:1,draw:'<path d="'+SH+'" fill="#2f8f5a"/><g clip-path="url(#CID)"><path d="M0 108 L6 102 L12 108 L18 102 L24 108 L30 102 L36 108 L42 102 L48 108 L54 102 L60 108 L66 102 L72 108 L78 102 L84 108 L90 102 L96 108 L102 102 L108 108 L114 102 L120 108" stroke="#fff" stroke-width="3" fill="none"/><g fill="#e5484d"><circle cx="30" cy="116" r="2.5"/><circle cx="60" cy="117" r="2.5"/><circle cx="90" cy="116" r="2.5"/></g></g>'},
+ {id:"snow-bg",slot:"bg",name:"雪景",r:"SR",season:"xmas",draw:'<rect width="120" height="120" fill="#cfe8ff"/><g fill="#fff"><circle cx="14" cy="18" r="2.4"/><circle cx="40" cy="10" r="1.8"/><circle cx="98" cy="14" r="2.4"/><circle cx="108" cy="40" r="1.8"/><circle cx="10" cy="48" r="1.8"/><circle cx="26" cy="34" r="1.4"/></g><path d="M0 92 Q30 80 60 90 Q90 80 120 90 V120 H0Z" fill="#fff"/>'},
+ // ----- 季節限定：春節 -----
+ {id:"tangzhuang",slot:"outfit",name:"唐裝",r:"SR",season:"cny",draw:'<path d="'+SH+'" fill="#c8282e"/><path d="M50 91 Q60 96 70 91 L70 95 Q60 100 50 95Z" fill="#a31f24"/><g stroke="#f2c14e" stroke-width="2.4" stroke-linecap="round"><path d="M55 103 H65 M55 111 H65 M55 119 H65"/></g><path d="M60 96 V124" stroke="#a31f24" stroke-width="1.5"/>'},
+ {id:"hongbao",slot:"acc",name:"紅包",r:"R",season:"cny",draw:'<rect x="80" y="94" width="16" height="22" rx="2" fill="#e5302f"/><path d="M80 100 Q88 106 96 100" stroke="#f2c14e" stroke-width="1.5" fill="none"/><circle cx="88" cy="108" r="3.5" fill="#f2c14e"/>'},
+ {id:"cny-bg",slot:"bg",name:"春聯",r:"R",season:"cny",draw:'<rect width="120" height="120" fill="#ffe2c4"/><rect x="6" y="10" width="14" height="80" fill="#d62c2c"/><rect x="100" y="10" width="14" height="80" fill="#d62c2c"/><g transform="translate(60 14) rotate(45)"><rect x="-10" y="-10" width="20" height="20" fill="#d62c2c"/></g><text x="60" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#f2c14e" font-family="Noto Sans TC,sans-serif">福</text>'},
+ // ----- 季節限定：端午節 -----
+ {id:"zongzi",slot:"acc",name:"粽子",r:"R",season:"dragon",draw:'<path d="M88 92 L100 116 L76 116Z" fill="#5aa85a"/><path d="M88 92 L94 116 M82 106 L96 106" stroke="#3f7f3f" stroke-width="1.4"/><path d="M78 110 Q88 104 98 110" stroke="#c9a26a" stroke-width="1.8" fill="none"/>'},
+ {id:"dragonboat-bg",slot:"bg",name:"龍舟河",r:"SR",season:"dragon",draw:'<rect width="120" height="120" fill="#bfe6ff"/><path d="M0 76 Q15 70 30 76 T60 76 T90 76 T120 76 V120 H0Z" fill="#5ab0de"/><path d="M8 72 L40 72 L44 64 L46 72 Q30 80 10 76Z" fill="#e5484d"/><circle cx="43" cy="63" r="2" fill="#ffd166"/><path d="M84 80 Q99 74 114 80" stroke="#fff" stroke-width="2" fill="none" opacity=".7"/>'},
+ // ----- 季節限定：中秋節 -----
+ {id:"lantern",slot:"acc",name:"兔子燈籠",r:"R",season:"moon",draw:'<path d="M90 86 V92" stroke="#8a6a3a" stroke-width="1.5"/><ellipse cx="90" cy="102" rx="10" ry="9" fill="#ffd36b"/><ellipse cx="86" cy="93" rx="2.2" ry="5" fill="#ffd36b"/><ellipse cx="93" cy="93" rx="2.2" ry="5" fill="#ffd36b"/><circle cx="87" cy="101" r="1" fill="#3b2a1e"/><circle cx="93" cy="101" r="1" fill="#3b2a1e"/><path d="M80 104 H100" stroke="#e59a3a" stroke-width="1"/>'},
+ {id:"moon-bg",slot:"bg",name:"中秋月夜",r:"SR",season:"moon",draw:'<rect width="120" height="120" fill="#22335c"/><circle cx="88" cy="28" r="17" fill="#ffe08a"/><circle cx="83" cy="24" r="3" fill="#f2c96a"/><circle cx="92" cy="33" r="2" fill="#f2c96a"/><path d="M8 40 q10 -6 20 0 q-10 4 -20 0Z M30 22 q8 -5 16 0 q-8 3 -16 0Z" fill="#fff" opacity=".35"/>'}
+
 ];
 const ITEM=Object.fromEntries(ITEMS.map(i=>[i.id,i]));
 const STARTER=ITEMS.filter(i=>i.free).map(i=>i.id);
-const DEFAULT_WEAR={animal:"cat",hair:"h-none",outfit:"tee",acc:"a-none",bg:"sun"};
+const DEFAULT_WEAR={animal:"cat",hair:"h-none",outfit:"tee",acc:"a-none",face:"f-none",bg:"sun"};
 let avUid=0;
 function avatarSVG(wear,label,art){
   const w=Object.assign({},DEFAULT_WEAR,wear||{});
   const g=s=>ITEM[w[s]]&&ITEM[w[s]].slot===s?ITEM[w[s]]:ITEM[DEFAULT_WEAR[s]];
-  const an=g("animal"),hr=g("hair"),of=g("outfit"),ac=g("acc"),bg=g("bg");
+  const an=g("animal"),hr=g("hair"),of=g("outfit"),ac=g("acc"),fc=g("face"),bg=g("bg");
   const id="av"+(++avUid);
   const C=s=>(s||"").replace(/fill="C"/g,`fill="${an.c}"`);
   const eye=an.eye||INK, pupil=an.eye?INK:"#fff";
@@ -591,7 +660,7 @@ function avatarSVG(wear,label,art){
   const mouth=an.mouth||`<path d="M55 70 Q57.5 73 60 70 Q62.5 73 65 70" fill="none" stroke="${INK}" stroke-width="1.8" stroke-linecap="round"/>`;
   const defs=`<defs><clipPath id="${id}c"><circle cx="60" cy="60" r="60"/></clipPath><clipPath id="${id}s"><path d="${SH}"/></clipPath><linearGradient id="${id}g" x1="0" x2="1"><stop offset="0" stop-color="#ff7a7a"/><stop offset=".25" stop-color="#ffb35c"/><stop offset=".5" stop-color="#ffe066"/><stop offset=".75" stop-color="#6cc3f0"/><stop offset="1" stop-color="#a594ff"/></linearGradient></defs>`;
   const fix=s=>(s||"").replace(/url\(#GID\)/g,`url(#${id}g)`).replace(/url\(#CID\)/g,`url(#${id}s)`);
-  const ch=`${fix(of.back)}${C(an.ears)}${fix(of.draw)}<circle cx="60" cy="58" r="28" fill="${an.c}"/>${C(an.face)}${eyes}${cheeks}${nose}${mouth}${fix(hr.draw)}${an.top||""}${fix(ac.draw)}`;
+  const ch=`${fix(of.back)}${C(an.ears)}${fix(of.draw)}<circle cx="60" cy="58" r="28" fill="${an.c}"/>${C(an.face)}${eyes}${cheeks}${nose}${mouth}${fix(fc.draw)}${fix(hr.draw)}${an.top||""}${fix(ac.draw)}`;
   let fx="",body;
   if(art==="crayon"){
     fx=`<filter id="${id}k" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="d"/><feTurbulence type="fractalNoise" baseFrequency="1.9" numOctaves="1" seed="9" result="g"/><feColorMatrix in="g" type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -1.6 0 0 0 0.62" result="ga"/><feComposite in="ga" in2="d" operator="in" result="gm"/><feMerge><feMergeNode in="d"/><feMergeNode in="gm"/></feMerge></filter>`;
@@ -985,7 +1054,7 @@ function confetti(){
 
 /* ---------- 造型 (style & shop) ---------- */
 let styleSlot="animal",pendingBuy=null,styleView="dress";
-const MILESTONES=[{n:10,t:1},{n:20,t:2},{n:30,t:2},{n:40,t:3},{n:53,t:5}];
+const MILESTONES=[{n:10,t:1},{n:20,t:2},{n:30,t:2},{n:40,t:3},{n:55,t:4},{n:ITEMS.length,t:6}];
 const machineOf=slot=>MACHINES.find(m=>m.slots.includes(slot));
 function Book(p){
   p.claimed=Array.isArray(p.claimed)?p.claimed:[];
@@ -996,11 +1065,12 @@ function Book(p){
   const secs=SLOTS.map(sl=>{const its=ITEMS.filter(i=>i.slot===sl.id),got=its.filter(i=>p.owned.includes(i.id)).length;
     return h("div",{class:"book-sec"},
       h("div",{class:"row spread"},h("h3",{text:sl.name}),h("span",{class:"pill",text:`${got} / ${its.length}`+(got===its.length?" ✓":"")})),
-      h("div",{class:"items"},...its.map(it=>{const own=p.owned.includes(it.id),mystery=!own&&it.gacha&&(it.r==="SR"||it.r==="SSR");
-        const how=it.free?"一開始就有":it.gacha?`${machineOf(it.slot).name}・抽獎限定`:`${PRICE[it.r]} 點兌換，或${machineOf(it.slot).name}抽到`;
-        return h("div",{class:"item book"+(own?"":" missing")},h("span",{class:`rar ${it.r}`,text:it.r}),
+      h("div",{class:"items"},...its.map(it=>{const own=p.owned.includes(it.id),mystery=!own&&it.gacha&&!it.atayal&&(it.r==="SR"||it.r==="SSR");
+        const how=it.free?"一開始就有":it.season?(seasonOpen(it.season)?`${SEASONS[it.season].name}限定・開放中！`:`${seasonLabel(it.season)}`):it.atayal?`${machineOf(it.slot).name}・極稀有`:it.gacha?`${machineOf(it.slot).name}・抽獎限定`:`${PRICE[it.r]} 點兌換，或${machineOf(it.slot).name}抽到`;
+        return h("div",{class:"item book"+(own?"":" missing")+(it.atayal?" atayal":"")},h("span",{class:`rar ${it.r}`,text:it.r}),
           Av(Object.assign({},p.wear,{[it.slot]:it.id}),own?"av":"av ghost",own?it.name:"還沒收集"),
-          h("span",{class:"nm",text:mystery?"？？？":it.name}),h("span",{class:"st",text:own?"已收集":how}))})))});
+          h("span",{class:"nm",text:mystery?"？？？":it.name}),h("span",{class:"st",text:own?"已收集":how}),
+          it.note?h("details",{class:"culture"},h("summary",{text:"文化小知識"}),h("p",{text:it.note})):null)})))});
   return h("div",{class:"book-wrap"},
     h("div",{class:"book-top"},h("div",{},h("span",{class:"book-count",text:have}),h("span",{class:"muted",text:` / ${total} 件`})),
       h("div",{class:"bar",style:"flex:1;min-width:160px"},h("span",{style:`width:${have/total*100}%`}))),
@@ -1009,7 +1079,7 @@ function Book(p){
 function itemState(p,it){
   if(p.wear[it.slot]===it.id)return "wearing";
   if(p.owned.includes(it.id))return "owned";
-  if(it.gacha)return "locked";
+  if(it.gacha||(it.season&&!seasonOpen(it.season)))return "locked";
   return "buy"}
 function Style(){
   const p=P();
@@ -1017,11 +1087,11 @@ function Style(){
   const grid=h("div",{class:"items"},...items.map(it=>{
     const st=itemState(p,it),price=PRICE[it.r];
     const confirm=pendingBuy===it.id;
-    const txt=st==="wearing"?"穿戴中":st==="owned"?"點一下換上":st==="locked"?"抽獎限定":confirm?(p.points>=price?`確定用 ${price} 點兌換？`:`還差 ${price-p.points} 點`):`兌換 ${price} 點`;
+    const txt=st==="wearing"?"穿戴中":st==="owned"?"點一下換上":st==="locked"?(it.season&&!seasonOpen(it.season)?`${SEASONS[it.season].name}限定・${SEASONS[it.season].from.replace("-","/")} 開放`:it.atayal?"抽獎極稀有":"抽獎限定"):confirm?(p.points>=price?`確定用 ${price} 點兌換？`:`還差 ${price-p.points} 點`):`兌換 ${price} 點`;
     return h("button",{class:`item ${st}${confirm?" confirm":""}`,"aria-label":`${it.name}，${RAR[it.r].name}，${txt}`,onclick:()=>{
       if(st==="owned"){p.wear[it.slot]=it.id;pendingBuy=null;save();render();return}
       if(st==="wearing")return;
-      if(st==="locked"){toast("這個造型只能從抽獎得到");return}
+      if(st==="locked"){toast(it.season&&!seasonOpen(it.season)?`這是${seasonLabel(it.season)}的造型，到時候再來兌換或抽獎吧！`:"這個造型只能從抽獎得到");return}
       if(!confirm){pendingBuy=it.id;render();return}
       if(p.points<price){toast(`點數不夠，還差 ${price-p.points} 點。多做幾次檢測吧！`);pendingBuy=null;render();return}
       p.points-=price;p.owned.push(it.id);p.wear[it.slot]=it.id;pendingBuy=null;save();render();bump();toast(`兌換成功！已經換上「${it.name}」`)}},
@@ -1049,7 +1119,7 @@ function Style(){
 
 /* ---------- 抽獎 ---------- */
 const MACHINES=[
-  {id:"claw",name:"夾娃娃機",slots:["animal","acc"],desc:"夾出新的動物或配件"},
+  {id:"claw",name:"夾娃娃機",slots:["animal","acc","face"],desc:"夾出新的動物、配件或臉部造型"},
   {id:"capsule",name:"扭蛋機",slots:["hair","bg"],desc:"轉出新的髮型或背景"},
   {id:"chest",name:"寶箱",slots:["outfit"],desc:"打開就是一套新服裝"}];
 const PALETTE=["var(--g7)","var(--g8)","var(--g9)","var(--g12)","var(--sun)","#6cc3f0"];
@@ -1067,6 +1137,7 @@ function machineArt(id,prizeColor){
 function Draw(){
   const p=P();
   return h("div",{style:"display:flex;flex-direction:column;gap:16px"},
+    SeasonBanner(),
     h("section",{class:"panel"},
       h("div",{class:"tickets-hero"},h("span",{class:"big-ticket",html:ICON_TICKET}),h("div",{},h("b",{text:p.tickets}),h("div",{class:"muted",text:"張抽獎券"})),
         h("p",{class:"small muted",style:"flex:1;min-width:200px;margin:0",text:"每完成一次檢測（答對一半以上）得到 1 張，全部答對再多送 1 張。抽到已經有的造型，會自動換成點數。"})),
@@ -1074,9 +1145,18 @@ function Draw(){
         h("div",{class:"mini"},h("div",{class:"scene",style:"width:240px;height:240px;transform:scale(.6);margin:-48px"},machineArt(m.id,"var(--sun)"))),
         h("h3",{text:m.name}),h("p",{text:m.desc}),
         h("button",{class:"btn primary",disabled:p.tickets<1,text:p.tickets<1?"沒有抽獎券":"抽一次（用 1 張）",onclick:()=>spin(m)})))),
-      h("p",{class:"odds",text:"機率：普通 55%・稀有 30%・超稀有 12%・傳說 3%"})))}
+      h("p",{class:"odds",text:"機率：普通 55%・稀有 30%・超稀有 12%・傳說 2%・極稀有（泰雅族主題）1%"})))}
+function SeasonBanner(){
+  const open=Object.keys(SEASONS).filter(seasonOpen);
+  const next=Object.entries(SEASONS).map(([id,z])=>{const t=mmdd();const y=new Date().getFullYear()+(z.from<t?1:0);return {id,z,d:new Date(`${y}-${z.from}T00:00:00`)}}).sort((a,b)=>a.d-b.d)[0];
+  if(!open.length)return h("section",{class:"panel season off"},h("h3",{text:"季節限定造型"}),h("p",{class:"small muted",style:"margin:0",text:`下一個活動：${next.z.name}，${next.z.from.replace("-","/")} 開始。期間限定的造型只有那時候抽得到、換得到。`}));
+  const p=P();
+  return h("section",{class:"panel season"},...open.map(id=>{const its=ITEMS.filter(i=>i.season===id);
+    return h("div",{class:"season-in"},h("div",{class:"row spread"},h("h3",{text:`${SEASONS[id].name}限定登場！`}),h("span",{class:"pill gold",text:`到 ${SEASONS[id].to.replace("-","/")} 為止`})),
+      h("p",{class:"small muted",style:"margin:0",text:"活動期間可以從抽獎抽到，或到「造型」用點數兌換。過了就要等明年囉！"}),
+      h("div",{class:"season-items"},...its.map(it=>h("div",{class:"s-item"+(p.owned.includes(it.id)?" got":"")},Av(Object.assign({},p.wear,{[it.slot]:it.id}),"av",it.name),h("span",{text:it.name}),h("small",{text:p.owned.includes(it.id)?"已收集":`${RAR[it.r].name}・${machineOf(it.slot).name}`})))))}))}
 function rollPrize(m){
-  const pool=ITEMS.filter(i=>m.slots.includes(i.slot)&&!i.free);
+  const pool=ITEMS.filter(i=>m.slots.includes(i.slot)&&obtainable(i));
   for(let k=0;k<20;k++){
     let x=Math.random()*100,r="N";for(const[k2,v]of Object.entries(RAR)){if(x<v.w){r=k2;break}x-=v.w}
     const c=pool.filter(i=>i.r===r);if(c.length)return c[Math.floor(Math.random()*c.length)]}
@@ -1086,7 +1166,7 @@ function spin(m){
   p.tickets--;const it=rollPrize(m);const dup=p.owned.includes(it.id);
   if(dup){p.points+=RAR[it.r].refund}else p.owned.push(it.id);
   save();updateHeader();
-  const col={N:"#8fa3b8",R:"#3b9ad9",SR:"#9a5cf0",SSR:"#e2477f"}[it.r];
+  const col={N:"#8fa3b8",R:"#3b9ad9",SR:"#9a5cf0",SSR:"#e2477f",UR:"#b5262c"}[it.r];
   const scene=h("div",{class:"scene"},machineArt(m.id,col));
   const stage=h("div",{class:"stage",role:"dialog","aria-modal":"true","aria-label":m.name},h("h2",{text:m.name}),scene,h("p",{class:"muted",text:"轉轉轉……"}));
   const wrap=h("div",{class:"stage-wrap"},stage);document.body.append(wrap);
@@ -1097,13 +1177,14 @@ function spin(m){
     const again=h("button",{class:"btn",text:p.tickets>0?`再抽一次（剩 ${p.tickets} 張）`:"沒有抽獎券了",disabled:p.tickets<1,onclick:()=>{wrap.remove();render();spin(m)}});
     stage.replaceChildren(h("div",{class:"reveal",style:"display:flex;flex-direction:column;align-items:center;gap:10px"},
       h("span",{class:`rar ${it.r}`,text:`${it.r}・${RAR[it.r].name}`}),
-      h("div",{class:it.r==="SR"||it.r==="SSR"?"glow":""},Av(Object.assign({},p.wear,{[it.slot]:it.id}),"av",it.name)),
+      h("div",{class:it.r==="UR"?"glow ur":it.r==="SR"||it.r==="SSR"?"glow":""},Av(Object.assign({},p.wear,{[it.slot]:it.id}),"av",it.name)),
       h("h2",{text:it.name}),
-      h("p",{class:"muted",style:"margin:0",text:dup?`已經有這個造型了，換成 ${RAR[it.r].refund} 點！`:`新的${SLOTS.find(s=>s.id===it.slot).name}到手！`})),
+      h("p",{class:"muted",style:"margin:0",text:dup?`已經有這個造型了，換成 ${RAR[it.r].refund} 點！`:`新的${SLOTS.find(s=>s.id===it.slot).name}到手！`}),
+      it.note?h("p",{class:"culture-note",text:it.note}):null),
       h("div",{class:"row",style:"justify-content:center"},
         dup?null:h("button",{class:"btn primary",text:"馬上換上",onclick:()=>{p.wear[it.slot]=it.id;save();wrap.remove();tab="style";styleSlot=it.slot;render()}}),
         again,h("button",{class:"btn",text:"關閉",onclick:close})));
-    if(it.r==="SR"||it.r==="SSR")confetti();
+    if(it.r==="SR"||it.r==="SSR"||it.r==="UR")confetti();
     const f=stage.querySelector(".btn.primary")||stage.querySelector(".btn");if(f)f.focus()},reduce?50:(m.id==="claw"?3200:m.id==="capsule"?3300:2900));
   wrap.addEventListener("keydown",e=>{if(e.key==="Escape"&&stage.querySelector(".reveal")){wrap.remove();render()}})}
 
