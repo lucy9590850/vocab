@@ -424,6 +424,13 @@ details.culture p{margin:4px 0 0;font-size:.72rem;line-height:1.5;color:var(--in
 .s-item small{font-weight:500;color:var(--muted);font-size:.7rem}
 .s-item.got .av{box-shadow:0 0 0 3px var(--ok)}
 
+.achieve{display:flex;gap:14px;align-items:center;flex-wrap:wrap;border-radius:18px;padding:14px;color:#fff;
+  background:repeating-linear-gradient(135deg,#b5262c 0 14px,#9e1f25 14px 16px);box-shadow:inset 0 0 0 3px #f2c14e}
+.achieve-avs{display:flex;gap:6px}.achieve .av{width:64px;height:64px;box-shadow:0 0 0 3px #fff}
+.achieve>div:last-child{flex:1;min-width:200px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.achieve strong{font-family:var(--round);font-weight:400;font-size:1.15rem}
+.achieve p{margin:0;font-size:.88rem;opacity:.95}
+
 /* reward + send */
 .reward{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--gold-soft);border:2px solid var(--sun);border-radius:18px;padding:12px 14px}
 .reward svg{width:42px;height:42px;color:var(--gold);flex:none}
@@ -507,7 +514,10 @@ const SEASONS={halloween:{name:"萬聖節",from:"10-15",to:"11-15"},xmas:{name:"
 const mmdd=()=>{const d=new Date();return String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
 const seasonOpen=id=>{const z=SEASONS[id],t=mmdd();return !!z&&t>=z.from&&t<=z.to};
 const seasonLabel=id=>{const z=SEASONS[id];return `${z.name}限定（${z.from.replace("-","/")}–${z.to.replace("-","/")}）`};
-const obtainable=it=>!it.free&&(!it.season||seasonOpen(it.season));
+const obtainable=it=>!it.free&&!it.earn&&(!it.season||seasonOpen(it.season));
+/* 學習成就：累積完成（答對一半以上的）檢測次數 */
+const EARN_LABEL="累積練習";
+function grantEarned(p){const got=ITEMS.filter(i=>i.earn&&(p.quizCount||0)>=i.earn&&!p.owned.includes(i.id));got.forEach(i=>p.owned.push(i.id));return got}
 /* item: id, slot, name, r (rarity), free, gacha (only from draws) */
 const ITEMS=[
  // animals
@@ -598,11 +608,11 @@ const ITEMS=[
  {id:"mustache",slot:"face",name:"小鬍子",r:"N",draw:'<path d="M50 70 Q55 66 60 69 Q65 66 70 70 Q66 74 60 71 Q54 74 50 70Z" fill="#3b2a1e"/>'},
  {id:"starface",slot:"face",name:"星星臉貼",r:"R",draw:'<path d="M39 66 l1.6 3.3 3.6.5 -2.6 2.5.6 3.6 -3.2-1.7 -3.2 1.7.6-3.6 -2.6-2.5 3.6-.5Z" fill="#ffd166"/><path d="M81 66 l1.6 3.3 3.6.5 -2.6 2.5.6 3.6 -3.2-1.7 -3.2 1.7.6-3.6 -2.6-2.5 3.6-.5Z" fill="#ff8fb1"/>'},
  // ----- 泰雅族（UR 極稀有） -----
- {id:"ptasan-m",slot:"face",name:"紋面・勇士",r:"UR",gacha:1,atayal:1,
-  note:"泰雅語稱紋面為 ptasan。傳統上，男子要證明狩獵能力、能夠守護部落，才能在額頭和下巴紋面，是勇敢與成年的象徵。",
+ {id:"ptasan-m",slot:"face",name:"紋面・勇士",r:"UR",earn:100,atayal:1,
+  note:"泰雅語稱紋面為 ptasan。傳統上，男子要證明狩獵能力、能夠守護部落，才能在額頭和下巴紋面，是勇敢與成年的象徵。就像紋面要靠努力贏得，這個造型也要累積 100 次練習才能獲得。",
   draw:'<g stroke="#2f3b5c" stroke-width="1.7" stroke-linecap="round" opacity=".85" fill="none"><path d="M57 32 V48 M60 31 V49 M63 32 V48"/><path d="M54 78 V85 M57 78.5 V86.5 M60 79 V87 M63 78.5 V86.5 M66 78 V85"/></g>'},
- {id:"ptasan-f",slot:"face",name:"紋面・織女",r:"UR",gacha:1,atayal:1,
-  note:"女子要學會織布、擁有好手藝，才能在額頭與兩頰紋上 V 字形的寬紋，代表能幹與美麗，也是成年的印記。",
+ {id:"ptasan-f",slot:"face",name:"紋面・織女",r:"UR",earn:100,atayal:1,
+  note:"女子要學會織布、擁有好手藝，才能在額頭與兩頰紋上 V 字形的寬紋，代表能幹與美麗，也是成年的印記。就像紋面要靠努力贏得，這個造型也要累積 100 次練習才能獲得。",
   draw:'<g stroke="#2f3b5c" stroke-width="1.5" stroke-linecap="round" opacity=".85" fill="none"><path d="M57 32 V46 M60 31 V47 M63 32 V46"/><path d="M34 57.0 L53.5 70.5 M86 57.0 L66.5 70.5 M34 59.4 L53.5 71.8 M86 59.4 L66.5 71.8 M34 61.8 L53.5 73.1 M86 61.8 L66.5 73.1 M34 64.2 L53.5 74.4 M86 64.2 L66.5 74.4"/></g>'},
  {id:"atayal-wear",slot:"outfit",name:"泰雅織衣",r:"UR",gacha:1,atayal:1,clip:1,
   note:"泰雅族以精湛的織布聞名。紅色布料上的菱形紋，常被說是「祖靈之眼」，守護穿著的人。",
@@ -700,6 +710,7 @@ function fixProfile(p){
   p.owned=Array.isArray(p.owned)?p.owned.filter(id=>ITEM[id]):[];STARTER.forEach(id=>{if(!p.owned.includes(id))p.owned.push(id)});
   p.wear=Object.assign({},DEFAULT_WEAR,p.wear||{});Object.keys(DEFAULT_WEAR).forEach(s=>{if(!p.owned.includes(p.wear[s]))p.wear[s]=DEFAULT_WEAR[s]});
   p.best=p.best||{};p.review=p.review||{};p.log=Array.isArray(p.log)?p.log:[];p.claimed=Array.isArray(p.claimed)?p.claimed:[];
+  if(typeof p.quizCount!=="number")p.quizCount=p.log.filter(e=>e.right*2>=e.n).length;
   if(!ARTS_IDS.includes(p.art))p.art="flat";return p}
 const ARTS_IDS=["flat","sticker","crayon","pixel"];
 Object.values(S.profiles).forEach(fixProfile);
@@ -1066,7 +1077,7 @@ function Book(p){
     return h("div",{class:"book-sec"},
       h("div",{class:"row spread"},h("h3",{text:sl.name}),h("span",{class:"pill",text:`${got} / ${its.length}`+(got===its.length?" ✓":"")})),
       h("div",{class:"items"},...its.map(it=>{const own=p.owned.includes(it.id),mystery=!own&&it.gacha&&!it.atayal&&(it.r==="SR"||it.r==="SSR");
-        const how=it.free?"一開始就有":it.season?(seasonOpen(it.season)?`${SEASONS[it.season].name}限定・開放中！`:`${seasonLabel(it.season)}`):it.atayal?`${machineOf(it.slot).name}・極稀有`:it.gacha?`${machineOf(it.slot).name}・抽獎限定`:`${PRICE[it.r]} 點兌換，或${machineOf(it.slot).name}抽到`;
+        const how=it.free?"一開始就有":it.earn?`學習成就：${EARN_LABEL} ${Math.min(p.quizCount||0,it.earn)} / ${it.earn} 次`:it.season?(seasonOpen(it.season)?`${SEASONS[it.season].name}限定・開放中！`:`${seasonLabel(it.season)}`):it.atayal?`${machineOf(it.slot).name}・極稀有`:it.gacha?`${machineOf(it.slot).name}・抽獎限定`:`${PRICE[it.r]} 點兌換，或${machineOf(it.slot).name}抽到`;
         return h("div",{class:"item book"+(own?"":" missing")+(it.atayal?" atayal":"")},h("span",{class:`rar ${it.r}`,text:it.r}),
           Av(Object.assign({},p.wear,{[it.slot]:it.id}),own?"av":"av ghost",own?it.name:"還沒收集"),
           h("span",{class:"nm",text:mystery?"？？？":it.name}),h("span",{class:"st",text:own?"已收集":how}),
@@ -1079,7 +1090,7 @@ function Book(p){
 function itemState(p,it){
   if(p.wear[it.slot]===it.id)return "wearing";
   if(p.owned.includes(it.id))return "owned";
-  if(it.gacha||(it.season&&!seasonOpen(it.season)))return "locked";
+  if(it.gacha||it.earn||(it.season&&!seasonOpen(it.season)))return "locked";
   return "buy"}
 function Style(){
   const p=P();
@@ -1087,11 +1098,11 @@ function Style(){
   const grid=h("div",{class:"items"},...items.map(it=>{
     const st=itemState(p,it),price=PRICE[it.r];
     const confirm=pendingBuy===it.id;
-    const txt=st==="wearing"?"穿戴中":st==="owned"?"點一下換上":st==="locked"?(it.season&&!seasonOpen(it.season)?`${SEASONS[it.season].name}限定・${SEASONS[it.season].from.replace("-","/")} 開放`:it.atayal?"抽獎極稀有":"抽獎限定"):confirm?(p.points>=price?`確定用 ${price} 點兌換？`:`還差 ${price-p.points} 點`):`兌換 ${price} 點`;
+    const txt=st==="wearing"?"穿戴中":st==="owned"?"點一下換上":st==="locked"?(it.earn?`練習 ${Math.min(p.quizCount||0,it.earn)}/${it.earn} 次解鎖`:it.season&&!seasonOpen(it.season)?`${SEASONS[it.season].name}限定・${SEASONS[it.season].from.replace("-","/")} 開放`:it.atayal?"抽獎極稀有":"抽獎限定"):confirm?(p.points>=price?`確定用 ${price} 點兌換？`:`還差 ${price-p.points} 點`):`兌換 ${price} 點`;
     return h("button",{class:`item ${st}${confirm?" confirm":""}`,"aria-label":`${it.name}，${RAR[it.r].name}，${txt}`,onclick:()=>{
       if(st==="owned"){p.wear[it.slot]=it.id;pendingBuy=null;save();render();return}
       if(st==="wearing")return;
-      if(st==="locked"){toast(it.season&&!seasonOpen(it.season)?`這是${seasonLabel(it.season)}的造型，到時候再來兌換或抽獎吧！`:"這個造型只能從抽獎得到");return}
+      if(st==="locked"){toast(it.earn?`再完成 ${it.earn-(p.quizCount||0)} 次檢測（答對一半以上）就能獲得「${it.name}」！`:it.season&&!seasonOpen(it.season)?`這是${seasonLabel(it.season)}的造型，到時候再來兌換或抽獎吧！`:"這個造型只能從抽獎得到");return}
       if(!confirm){pendingBuy=it.id;render();return}
       if(p.points<price){toast(`點數不夠，還差 ${price-p.points} 點。多做幾次檢測吧！`);pendingBuy=null;render();return}
       p.points-=price;p.owned.push(it.id);p.wear[it.slot]=it.id;pendingBuy=null;save();render();bump();toast(`兌換成功！已經換上「${it.name}」`)}},
@@ -1104,7 +1115,7 @@ function Style(){
       h("div",{class:"profile"},Av(p.wear,"av",p.name+"的頭像"),
         h("div",{},h("div",{class:"p-name",text:p.name}),h("div",{class:"muted",text:`${p.cls} 班 ${p.seat} 號`}),
           h("div",{class:"p-stats"},h("span",{class:"pill gold",html:ICON_STAR+` 可用 ${p.points} 點`}),h("span",{class:"pill",text:`累積 ${p.earned} 點`}),
-            h("span",{class:"pill",html:ICON_TICKET+` 抽獎券 ${p.tickets}`}),h("span",{class:"pill",text:`收集 ${ownedN} / ${ITEMS.length}`})),
+            h("span",{class:"pill",html:ICON_TICKET+` 抽獎券 ${p.tickets}`}),h("span",{class:"pill",text:`收集 ${ownedN} / ${ITEMS.length}`}),h("span",{class:"pill",text:`練習 ${p.quizCount||0} 次`})),
           CloudBox(p),
           h("div",{class:"row",style:"margin-top:10px"},h("button",{class:"btn",text:"換其他同學登入",onclick:()=>{S.who=null;quiz=null;save();render()}}))))),
     h("section",{class:"panel"},
@@ -1194,6 +1205,7 @@ function Results(){
   if(!quiz.celebrated){quiz.celebrated=true;if(quiz.right/n>=.6)setTimeout(confetti,150)}
   if(!quiz.rewarded){quiz.rewarded=true;
     quiz.tickets=quiz.right*2>=n?(quiz.right===n?2:1):0;p.tickets+=quiz.tickets;
+    if(quiz.right*2>=n){p.quizCount=(p.quizCount||0)+1;quiz.earned=grantEarned(p);if(quiz.earned.length)setTimeout(confetti,400)}
     quiz.entry={id:Date.now(),t:quiz.time,set:curSet().name,score:quiz.score,max,right:quiz.right,n,sent:false,
       vals:{date:today(),cls:p.cls,seat:p.seat,name:p.name,set:setName(),mode:modeName(),score:`${quiz.score}/${max}`,right:`${quiz.right}/${n}`,detail:detailLine()},
       report:""};
@@ -1204,6 +1216,11 @@ function Results(){
     h("h2",{text:quiz.right===n?"全部答對，太強了！":quiz.right/n>=.6?"做得好！繼續保持":"再練一下，下次會更好"}),
     h("div",{class:"row",style:"align-items:baseline;gap:14px"},h("span",{class:"score-big",text:quiz.score}),h("span",{class:"muted",text:`/ ${max} 點 · 答對 ${quiz.right} / ${n} 題`})),
     SendTeacher(quiz.entry),
+    (quiz.earned&&quiz.earned.length)?h("div",{class:"achieve"},
+      h("div",{class:"achieve-avs"},...quiz.earned.map(it=>Av(Object.assign({},p.wear,{[it.slot]:it.id}),"av",it.name))),
+      h("div",{},h("strong",{text:`完成 ${p.quizCount} 次練習！獲得學習成就：${quiz.earned.map(i=>i.name).join("、")}`}),
+        h("p",{text:quiz.earned[0].note}),
+        h("button",{class:"btn primary",text:"去造型頁穿戴",onclick:()=>{quiz=null;tab="style";styleSlot="face";styleView="dress";render()}}))):null,
     h("div",{class:"reward"},h("span",{html:ICON_TICKET}),
       h("div",{},h("strong",{text:quiz.tickets?`獲得 ${quiz.tickets} 張抽獎券`:"這次沒有拿到抽獎券"}),
         h("span",{class:"small muted",text:quiz.tickets===2?"全部答對，多送你一張！":quiz.tickets?"全部答對可以多拿一張":"答對一半以上就能拿到抽獎券，再試一次吧"})),
@@ -1275,7 +1292,7 @@ async function pinHash(id,pin){
   catch(e){let h=0;for(const c of src)h=(h*31+c.charCodeAt(0))|0;return "x"+(h>>>0).toString(16)}}
 const cloudGet=params=>fetch(CLOUD.url+"?"+new URLSearchParams(params)).then(r=>r.json());
 const cloudPost=obj=>fetch(CLOUD.url,{method:"POST",body:JSON.stringify(obj)}).then(r=>r.json());
-const PKEYS=["points","earned","tickets","owned","wear","art","best","review","log","claimed","created"];
+const PKEYS=["points","earned","tickets","owned","wear","art","best","review","log","claimed","created","quizCount"];
 function packProfile(p){const d={};PKEYS.forEach(k=>d[k]=p[k]);d.log=(p.log||[]).slice(0,20).map(e=>{const x=Object.assign({},e);delete x.report;return x});return d}
 function plazaInfo(p){return {w:p.wear,a:p.art,o:p.owned.length,t:(p.log||[]).map(x=>x.id).filter(Boolean).slice(0,30)}}
 function applyCloud(p,r){
