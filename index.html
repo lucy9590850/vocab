@@ -935,7 +935,7 @@ function render(){
     h("span",{text:x.name}),h("small",{text:`${x.words.length} 字`}))));
   document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===tab));
   let main=tab==="plaza"?Plaza():tab==="style"?Style():tab==="draw"?Draw():tab==="sets"?Sets():(!cs||!cs.words.length)?EmptyGrade():tab==="learn"?Learn():Quiz();
-  if(tab==="learn"||(tab==="quiz"&&!quiz)){const tp=TaskPanel();if(tp)main=h("div",{style:"display:flex;flex-direction:column;gap:16px"},tp,main)}
+  if(tab==="learn"||(tab==="quiz"&&!quiz)){let tp=null;try{tp=TaskPanel()}catch(e){tp=null}if(tp)main=h("div",{style:"display:flex;flex-direction:column;gap:16px"},tp,main)}
   v.replaceChildren(main)}
 function EmptyGrade(){
   const g=GRADES.find(x=>x.id===S.grade);
@@ -1805,7 +1805,7 @@ function loadTasks(force){
   const p=P();if(!CLOUD_ON()||!p||tasksBusy)return;
   if(!force&&tasksData&&Date.now()-tasksAt<180000)return;
   tasksBusy=true;
-  cloudGet({action:"tasks",cls:p.cls,id:S.who}).then(r=>{if(r.ok){tasksData=r;tasksAt=Date.now();
+  cloudGet({action:"tasks",cls:p.cls,id:S.who}).then(r=>{if(r.ok&&Array.isArray(r.tasks)){r.done=Array.isArray(r.done)?r.done:[];tasksData=r;tasksAt=Date.now();
       p.tasksDone=Array.isArray(p.tasksDone)?p.tasksDone:[];
       if((tab==="learn"||tab==="quiz")&&!(quiz&&!quiz.done))render()}})
     .catch(()=>{}).finally(()=>{tasksBusy=false})}
@@ -1825,7 +1825,7 @@ function taskDone(t){const p=P();return (tasksData&&tasksData.done.includes(t.id
 function TaskPanel(){
   if(!CLOUD_ON()||!P()||!P().pinH)return null;
   loadTasks();
-  if(!tasksData||!tasksData.tasks.length)return null;
+  if(!tasksData||!Array.isArray(tasksData.tasks)||!tasksData.tasks.length)return null;
   const today=tasksData.today;
   const list=[...tasksData.tasks].sort((a,b)=>(taskDone(a)-taskDone(b))||a.due.localeCompare(b.due));
   const left=list.filter(t=>!taskDone(t)&&t.due>=today).length;
